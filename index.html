@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>يومياتي</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#F1F4F2;--ink:#17302B;--pine:#17463D;--teal:#1F6F5C;--brass:#C9A24B;--line:#D9E1DD;--yes:#2E8B57;--half:#D99A00;--no:#B5473A;--mute:#5F746E}
@@ -58,9 +61,11 @@ details ul{margin-top:8px}.nt{color:var(--mute);margin:6px 0 0;white-space:pre-w
   <div class="card">
     <h1>يومياتي</h1>
     <p id="lm"></p>
-    <input id="p1" type="password" autocomplete="off" placeholder="كلمة السر">
-    <input id="p2" type="password" autocomplete="off" placeholder="أعد كتابة كلمة السر" hidden>
+    <input id="p0" dir="ltr" autocomplete="username" autocapitalize="none" placeholder="اسم المستخدم (إنجليزي)">
+    <input id="p1" type="password" autocomplete="current-password" placeholder="كلمة السر">
+    <input id="p2" type="password" autocomplete="new-password" placeholder="أعد كتابة كلمة السر" hidden>
     <button id="go" class="pri">دخول</button>
+    <button id="sw">إنشاء حساب جديد</button>
     <p id="err" role="alert"></p>
   </div>
 </main>
@@ -85,7 +90,7 @@ details ul{margin-top:8px}.nt{color:var(--mute);margin:6px 0 0;white-space:pre-w
     </div>
   </section>
 
-  <div class="top"><h1>يومياتي</h1><button id="lk">قفل 🔒</button></div>
+  <div class="top"><h1 id="who">يومياتي</h1><button id="lk">خروج</button></div>
   <div class="tabs">
     <button id="t1" class="on">اليوم</button>
     <button id="t2">الأرشيف</button>
@@ -118,41 +123,68 @@ details ul{margin-top:8px}.nt{color:var(--mute);margin:6px 0 0;white-space:pre-w
 
 <script>
 const $=s=>document.querySelector(s), K='yawmiyati_v1';
-let S=JSON.parse(localStorage.getItem(K)||'null')||{pw:null,days:{},tz:'Asia/Riyadh'};
-const save=()=>localStorage.setItem(K,JSON.stringify(S));
+// الصق إعدادات Firebase هنا بدل القيم التالية
+const firebaseConfig={
+  apiKey:"AIzaSyBgSNPlPfXrlQw_mPwrr_WMokbhuudMu2k",
+  authDomain:"sabahdaily-3691f.firebaseapp.com",
+  projectId:"sabahdaily-3691f",
+  storageBucket:"sabahdaily-3691f.firebasestorage.app",
+  messagingSenderId:"645268785079",
+  appId:"1:645268785079:web:2e22d9fc498393eda34a32"
+};
+const ok=!firebaseConfig.apiKey.startsWith('PASTE');
+let S={days:{},tz:'Asia/Riyadh'},ref=null,unsub=null,reg=false,timer=null,auth,db;
+if(ok){
+  firebase.initializeApp(firebaseConfig);
+  auth=firebase.auth();db=firebase.firestore();
+  auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+}
+function save(){
+  if(!ref)return;clearTimeout(timer);
+  timer=setTimeout(()=>ref.set(JSON.parse(JSON.stringify({days:S.days,tz:S.tz}))).catch(()=>alert('تعذّر الحفظ، تأكد من الاتصال')),400);
+}
 const pad=n=>String(n).padStart(2,'0');
 const key=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const esc=t=>t.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let cur=key(new Date());
 const D=()=>S.days[cur]||(S.days[cur]={tasks:[],note:''});
+const err=m=>$('#err').textContent=m;
 
-async function hash(t){
-  if(window.crypto&&crypto.subtle){
-    const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('ym|'+t));
-    return [...new Uint8Array(b)].map(x=>pad(x.toString(16))).join('');
-  }
-  let h=5381;for(const c of 'ym|'+t)h=(h*33^c.charCodeAt(0))>>>0;return 'x'+h;
-}
-
-/* قفل */
 function lockUI(){
-  const first=!S.pw;
-  $('#lm').textContent=first?'أول مرة: اختر كلمة سر. ستُطلب منك عند كل دخول.':'أدخل كلمة السر للدخول.';
-  $('#p2').hidden=!first;$('#p1').value=$('#p2').value='';$('#err').textContent='';
-  $('#lock').hidden=false;$('#app').hidden=true;$('#p1').focus();
+  $('#lm').textContent=reg?'حساب جديد: اختر اسمًا وكلمة سر.':'سجّل دخولك إلى يومياتك.';
+  $('#p2').hidden=!reg;$('#go').textContent=reg?'إنشاء حساب':'دخول';
+  $('#sw').textContent=reg?'عندي حساب':'إنشاء حساب جديد';
+  $('#lock').hidden=false;$('#app').hidden=true;
+  $('#p0').value=$('#p1').value=$('#p2').value='';err('');
+  if(!ok)err('لم تُضف إعدادات Firebase في الملف بعد.');
 }
-function enter(){$('#lock').hidden=true;$('#app').hidden=false;render();}
+$('#sw').onclick=()=>{reg=!reg;lockUI()};
 $('#go').onclick=async()=>{
-  const a=$('#p1').value,e=$('#err');e.textContent='';
-  if(!S.pw){
-    if(a.length<4)return e.textContent='كلمة السر 4 أحرف على الأقل';
-    if(a!==$('#p2').value)return e.textContent='الكلمتان غير متطابقتين';
-    S.pw=await hash(a);save();enter();
-  }else if(await hash(a)===S.pw)enter();
-  else e.textContent='كلمة السر غير صحيحة';
+  if(!ok)return;
+  const n=$('#p0').value.trim().toLowerCase(),a=$('#p1').value;err('');
+  if(!/^[a-z0-9_]{3,20}$/.test(n))return err('الاسم: من 3 إلى 20 حرفًا إنجليزيًا أو أرقام أو _');
+  if(a.length<6)return err('كلمة السر 6 أحرف على الأقل');
+  if(reg&&a!==$('#p2').value)return err('الكلمتان غير متطابقتين');
+  const e=n+'@sabahdaily.app';
+  try{reg?await auth.createUserWithEmailAndPassword(e,a):await auth.signInWithEmailAndPassword(e,a)}
+  catch(x){err(x.code==='auth/email-already-in-use'?'هذا الاسم مستخدم، اختر غيره':x.code==='auth/network-request-failed'?'تأكد من الإنترنت':reg?'تعذّر إنشاء الحساب':'الاسم أو كلمة السر غير صحيحة')}
 };
-['#p1','#p2'].forEach(s=>$(s).addEventListener('keydown',e=>{if(e.key==='Enter')$('#go').click()}));
-$('#lk').onclick=lockUI;
+['#p0','#p1','#p2'].forEach(s=>$(s).addEventListener('keydown',e=>{if(e.key==='Enter')$('#go').click()}));
+$('#lk').onclick=()=>auth.signOut();
+if(ok)auth.onAuthStateChanged(u=>{
+  if(unsub){unsub();unsub=null}
+  if(u){
+    ref=db.collection('users').doc(u.uid);
+    $('#who').textContent='يوميات '+u.email.split('@')[0];
+    $('#lock').hidden=true;$('#app').hidden=false;
+    unsub=ref.onSnapshot(sn=>{
+      if(sn.metadata.hasPendingWrites)return;
+      const v=sn.data();
+      if(v){S.days=v.days||{};S.tz=v.tz||S.tz;$('#tz').value=S.tz}
+      render();
+    });
+  }else{ref=null;S.days={};reg=false;lockUI()}
+});
 
 /* التواريخ والساعة */
 const f=(loc,d,o)=>new Intl.DateTimeFormat(loc,o).format(d);
@@ -244,7 +276,7 @@ $('#imp').onchange=async e=>{
   }catch{alert('الملف غير صالح');}
 };
 
-lockUI();
+if(!ok)lockUI();
 </script>
 </body>
 </html>
