@@ -87,37 +87,72 @@ html.dark{--d1:#3A332E;--d2:#2B2623;--d3:#1E1A18;--orb:#FEF3C7;--thobe:#9AA3B5;-
 #app>:nth-child(4){grid-area:note}#app>:nth-child(5){grid-area:arch}#app>:nth-child(6){grid-area:back}
 #noteInput{min-height:180px}
 }
+
+:root{--d1a:#F6D79A;--d2a:#EBB766;--d3a:#D08A3A;--rim:#FFF1C9;--palm:#4E7A3A}
+html.dark{--d1a:#4A423B;--d2a:#382F2A;--d3a:#29231F;--rim:#6D6258;--palm:#1F2B22}
+.dn1{fill:url(#g1)}.dn2{fill:url(#g2)}.dn3{fill:url(#g3)}
+.rd{fill:none;stroke:var(--rim);stroke-width:2.5;opacity:.55}
+.crater{fill:#000;opacity:0}html.dark .crater{opacity:.09}
+.cara{animation:walkD 120s linear infinite}.cara.cm{animation-name:walkM;animation-duration:90s}
+@keyframes walkD{from{transform:translateX(-500px)}to{transform:translateX(1800px)}}
+@keyframes walkM{from{transform:translateX(-260px)}to{transform:translateX(520px)}}
+.bob{animation:bob 1.1s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+svg{shape-rendering:geometricPrecision}
 </style>
 </head>
 <body>
 <div id="cursorGlow"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <pattern id="chk" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#fff"/><path d="M0 0h4v4H0zM4 4h4v4H4z" fill="#C0392B"/></pattern>
+<linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--d1a)"/><stop offset="1" style="stop-color:var(--d1)"/></linearGradient>
+<linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--d2a)"/><stop offset="1" style="stop-color:var(--d2)"/></linearGradient>
+<linearGradient id="g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--d3a)"/><stop offset="1" style="stop-color:var(--d3)"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" style="stop-color:var(--orb);stop-opacity:.55"/><stop offset="1" style="stop-color:var(--orb);stop-opacity:0"/></radialGradient>
+<linearGradient id="hz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--orb);stop-opacity:0"/><stop offset=".6" style="stop-color:var(--orb);stop-opacity:.35"/><stop offset="1" style="stop-color:var(--orb);stop-opacity:0"/></linearGradient>
+<g id="camelG" class="tent">
+<path d="M-45 -62C-45 -78-30 -80-18 -78C-14 -100 8 -100 12 -78C30 -80 46 -76 48 -62C48 -48 34 -42 20 -44L-30 -44C-42 -44-45 -52-45 -62Z"/>
+<path d="M40 -70C46 -90 50 -108 58 -114L72 -112C76 -108 74 -104 68 -102L62 -100C58 -90 56 -78 52 -64Z"/>
+<path d="M-38 -46h7v46h-6zM-24 -46h6v46h-6zM24 -46h6v46h-6zM38 -50h6v50h-6z"/>
+<path d="M-45 -62Q-54 -54 -52 -38" stroke="currentColor" stroke-width="3" fill="none"/>
+</g>
 <g id="manG">
 <ellipse cx="0" cy="3" rx="52" ry="7" fill="#000" opacity=".15"/>
 <line x1="54" y1="-172" x2="60" y2="0" stroke="#6B3E1B" stroke-width="5" stroke-linecap="round"/>
-<path class="thobe" d="M-26 -168 Q-34 -80 -44 0 H40 Q30 -80 26 -168Z"/>
-<g class="bisht"><path d="M-30 -170 Q-58 -90 -68 -4 L-30 -4 Q-24 -90 -22 -165Z"/><path d="M30 -170 Q58 -90 74 -4 L32 -4 Q26 -90 22 -165Z"/></g>
+<path class="thobe" d="M-26 -168Q-34 -80 -44 0H40Q30 -80 26 -168Z"/>
+<path d="M-8 -150Q-12 -80 -14 -10M6 -150Q10 -80 16 -10M-22 -140Q-26 -70 -30 -8" stroke="#000" stroke-opacity=".12" stroke-width="2" fill="none"/>
+<path d="M-27 -118Q0 -110 27 -118L26 -107Q0 -99 -26 -107Z" fill="#8B2E2E"/>
+<path d="M-8 -170L0 -157L8 -170Z" fill="#000" opacity=".15"/>
+<path d="M-32 0q4-9 15-6l2 6zM18 0q4-9 15-6l2 6z" fill="#5a3a1c"/>
+<g class="bisht"><path d="M-30 -170Q-58 -90 -68 -4L-30 -4Q-24 -90 -22 -165Z"/><path d="M30 -170Q58 -90 74 -4L32 -4Q26 -90 22 -165Z"/></g>
 <circle cx="0" cy="-190" r="15" fill="#C68E5E"/>
-<path d="M-9 -184 Q0 -170 9 -184Z" fill="#2b1b10"/>
-<path d="M-22 -200 Q-26 -220 0 -221 Q26 -220 22 -200 Q0 -208 -22 -200Z" fill="url(#chk)"/>
-<path d="M-22 -200 L-36 -148 L-18 -154 L-15 -186Z" fill="url(#chk)"/>
-<path class="tail" d="M22 -200 L38 -146 L18 -154 L15 -186Z" fill="url(#chk)"/>
+<circle cx="-5" cy="-192" r="1.5" fill="#2b1b10"/><circle cx="5" cy="-192" r="1.5" fill="#2b1b10"/>
+<path d="M-9 -184Q0 -168 9 -184Q0 -180 -9 -184Z" fill="#2b1b10"/>
+<path d="M-22 -200Q-26 -220 0 -221Q26 -220 22 -200Q0 -208 -22 -200Z" fill="url(#chk)"/>
+<path d="M-22 -200L-36 -148L-18 -154L-15 -186Z" fill="url(#chk)"/>
+<path d="M-22 -200L-36 -148L-30 -150L-18 -196Z" fill="#000" opacity=".1"/>
+<path class="tail" d="M22 -200L38 -146L18 -154L15 -186Z" fill="url(#chk)"/>
 <ellipse cx="0" cy="-206" rx="22" ry="5" fill="none" stroke="#111" stroke-width="4"/>
 <circle cx="54" cy="-150" r="5" fill="#C68E5E"/>
 </g></defs></svg>
 <div class="desert-bg"><div class="stars" id="stars"></div>
 <svg class="scene sc-d" viewBox="0 0 1600 900" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
-<g class="pl" data-p="0.3"><circle class="orb" cx="1250" cy="170" r="70"/></g>
-<g class="pl" data-p="0.6"><path class="dn1" d="M0 620C250 520 450 600 700 560S1150 470 1400 560 1600 540 1600 540V900H0Z"/><path class="tent" d="M300 588l42-50 42 50z"/></g>
-<g class="pl" data-p="1"><path class="dn2" d="M0 720C300 640 520 740 820 690S1300 620 1600 700V900H0Z"/><g transform="translate(1470 705) scale(1.15)"><g class="hop"><use href="#manG"/></g></g></g>
-<g class="pl" data-p="1.8"><path class="dn3" d="M0 830C350 770 700 850 1050 800S1450 760 1600 800V900H0Z"/></g>
+<rect x="0" y="440" width="1600" height="260" fill="url(#hz)"/>
+<g class="pl" data-p="0.3"><circle cx="1250" cy="170" r="230" fill="url(#glow)"/><circle class="orb" cx="1250" cy="170" r="70"/><circle class="crater" cx="1230" cy="155" r="12"/><circle class="crater" cx="1270" cy="190" r="9"/></g>
+<g class="pl" data-p="0.6"><path class="dn1" d="M0 620C250 520 450 600 700 560S1150 470 1400 560 1600 540 1600 540V900H0Z"/><path class="rd" d="M0 620C250 520 450 600 700 560S1150 470 1400 560 1600 540 1600 540"/><path class="tent" d="M300 588l42-50 42 50z"/>
+<path d="M170 606C176 570 168 540 180 506" stroke="#6b4423" stroke-width="6" fill="none"/><g fill="var(--palm)"><path d="M180 506Q212 482 250 500Q214 494 180 506Z"/><path d="M180 506Q150 480 112 496Q148 492 180 506Z"/><path d="M180 506Q196 468 232 458Q200 474 180 506Z"/><path d="M180 506Q164 466 128 458Q160 474 180 506Z"/><path d="M180 506Q184 478 182 452Q176 480 180 506Z"/></g></g>
+<g class="pl" data-p="0.85"><g class="cara cd"><g transform="translate(0 640) scale(0.36)"><g class="bob" style="animation-delay:-0.0s"><use href="#camelG"/></g></g><g transform="translate(140 640) scale(0.36)"><g class="bob" style="animation-delay:-0.3s"><use href="#camelG"/></g></g><g transform="translate(280 640) scale(0.36)"><g class="bob" style="animation-delay:-0.7s"><use href="#camelG"/></g></g></g></g>
+<g class="pl" data-p="1"><path class="dn2" d="M0 720C300 640 520 740 820 690S1300 620 1600 700V900H0Z"/><path class="rd" d="M0 720C300 640 520 740 820 690S1300 620 1600 700"/><g transform="translate(1470 705) scale(1.15)"><g class="hop"><use href="#manG"/></g></g></g>
+<g class="pl" data-p="1.8"><path class="dn3" d="M0 830C350 770 700 850 1050 800S1450 760 1600 800V900H0Z"/><path class="rd" d="M0 830C350 770 700 850 1050 800S1450 760 1600 800"/></g>
 </svg>
 <svg class="scene sc-m" viewBox="0 0 400 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-<g class="pl" data-p="0.3"><circle class="orb" cx="90" cy="120" r="40"/></g>
-<g class="pl" data-p="0.6"><path class="dn1" d="M0 560C80 520 160 580 240 545S360 500 400 530V800H0Z"/></g>
-<g class="pl" data-p="1"><path class="dn2" d="M0 650C100 600 200 670 300 630S380 610 400 620V800H0Z"/><g transform="translate(290 655) scale(.8)"><g class="hop"><use href="#manG"/></g></g></g>
-<g class="pl" data-p="1.8"><path class="dn3" d="M0 740C120 700 250 760 400 720V800H0Z"/></g>
+<rect x="0" y="430" width="400" height="200" fill="url(#hz)"/>
+<g class="pl" data-p="0.3"><circle cx="90" cy="120" r="120" fill="url(#glow)"/><circle class="orb" cx="90" cy="120" r="40"/><circle class="crater" cx="80" cy="112" r="7"/><circle class="crater" cx="102" cy="132" r="5"/></g>
+<g class="pl" data-p="0.6"><path class="dn1" d="M0 560C80 520 160 580 240 545S360 500 400 530V800H0Z"/><path class="rd" d="M0 560C80 520 160 580 240 545S360 500 400 530"/></g>
+<g class="pl" data-p="0.85"><g class="cara cm"><g transform="translate(0 590) scale(0.26)"><g class="bob" style="animation-delay:-0.0s"><use href="#camelG"/></g></g><g transform="translate(70 590) scale(0.26)"><g class="bob" style="animation-delay:-0.3s"><use href="#camelG"/></g></g><g transform="translate(140 590) scale(0.26)"><g class="bob" style="animation-delay:-0.7s"><use href="#camelG"/></g></g></g></g>
+<g class="pl" data-p="1"><path class="dn2" d="M0 650C100 600 200 670 300 630S380 610 400 620V800H0Z"/><path class="rd" d="M0 650C100 600 200 670 300 630S380 610 400 620"/><g transform="translate(290 655) scale(.8)"><g class="hop"><use href="#manG"/></g></g></g>
+<g class="pl" data-p="1.8"><path class="dn3" d="M0 740C120 700 250 760 400 720V800H0Z"/><path class="rd" d="M0 740C120 700 250 760 400 720"/></g>
 </svg>
 <div class="dune dune1" id="dune1"></div><div class="dune dune2" id="dune2"></div>
 <canvas id="sand"></canvas></div>
@@ -284,7 +319,7 @@ const fine=matchMedia("(pointer:fine)").matches;
 let W,H,mx=.5,my=.5,tx=.5,ty=.5,wind=0,gust=0,sy=0,P=[],mouse=null;
 const PROV=["الصبر مفتاح الفرج","من جدّ وجد","قليلٌ دائم خيرٌ من كثيرٍ منقطع","في التأني السلامة","الوقت كالسيف","اطلبوا العلم من المهد إلى اللحد"];
 function mk(x,y,burst){return{x:x==null?Math.random()*W:x,y:y==null?Math.random()*H:y,vx:burst?(Math.random()-.5)*7:.6,vy:burst?(Math.random()-.8)*4:(Math.random()-.5)*.3,r:1+Math.random()*2.2,l:burst?1:null}}
-function size(){W=cv.width=innerWidth;H=cv.height=innerHeight;const n=W>899?70:35;while(P.filter(function(p){return p.l===null}).length<n)P.push(mk())}
+function size(){const r=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*r;cv.height=H*r;cv.style.width=W+"px";cv.style.height=H+"px";cx.setTransform(r,0,0,r,0,0);const n=W>899?70:35;while(P.filter(function(p){return p.l===null}).length<n)P.push(mk())}
 function loop(){
   mx+=(tx-mx)*.06;my+=(ty-my)*.06;
   wind+=((mx-.5)*24+gust-wind)*.08;gust*=.94;
