@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>يومياتي</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F1F4F2;--ink:#17302B;--pine:#17463D;--teal:#1F6F5C;--brass:#C9A24B;--line:#D9E1DD;--yes:#2E8B57;--half:#D99A00;--no:#B5473A;--mute:#5F746E}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Tajawal,system-ui,sans-serif;line-height:1.6}
+.wrap{max-width:640px;margin:0 auto;padding:16px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 14px}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.pri{background:var(--teal);color:#fff;border-color:var(--teal)}
+input,select,textarea{border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#fff;width:100%}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+#lock .card{margin-top:15vh;display:grid;gap:10px}
+h1{margin:0;font-size:1.6rem}
+#err{color:var(--no);margin:0;min-height:1.5em}
+.hero{background:var(--pine);color:#F1F4F2;border-radius:18px;padding:20px;margin-bottom:12px}
+.clock{font-size:3rem;font-weight:700;letter-spacing:.05em;direction:ltr;text-align:center;line-height:1.1}
+.hero select{background:transparent;color:#F1F4F2;border-color:#ffffff50;width:auto;margin:8px auto 0;display:block}
+.hero option{color:#17302B}
+.dates{margin-top:14px;border-top:1px solid #ffffff30;padding-top:10px;display:grid;gap:2px}
+.dates b{color:var(--brass);font-weight:500;margin-inline-end:6px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tabs button{flex:1}.tabs .on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.row{display:flex;gap:8px;margin-bottom:8px}.row button{white-space:nowrap}
+ul{list-style:none;margin:0;padding:0}
+#list li{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+#list li>span:first-child{flex:1}
+.seg{display:flex;gap:4px}
+.seg button,.del{width:36px;height:36px;padding:0;text-align:center}
+.seg .on.y{background:var(--yes);color:#fff;border-color:var(--yes)}
+.seg .on.h{background:var(--half);color:#fff;border-color:var(--half)}
+.seg .on.n{background:var(--no);color:#fff;border-color:var(--no)}
+.del{color:var(--mute)}
+.prog{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.track{flex:1;height:8px;background:var(--line);border-radius:8px;overflow:hidden}
+#bar{height:100%;width:0;background:var(--yes);transition:width .3s}
+.empty{color:var(--mute);margin:8px 0}
+textarea{min-height:90px;resize:vertical}
+details{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:8px}
+summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:8px}
+summary small{display:block;color:var(--mute)}
+details ul{margin-top:8px}.nt{color:var(--mute);margin:6px 0 0;white-space:pre-wrap}
+.bk{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.bk label{cursor:pointer;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 14px}
+</style>
+</head>
+<body>
+
+<main id="lock" class="wrap">
+  <div class="card">
+    <h1>يومياتي</h1>
+    <p id="lm"></p>
+    <input id="p1" type="password" autocomplete="off" placeholder="كلمة السر">
+    <input id="p2" type="password" autocomplete="off" placeholder="أعد كتابة كلمة السر" hidden>
+    <button id="go" class="pri">دخول</button>
+    <p id="err" role="alert"></p>
+  </div>
+</main>
+
+<main id="app" class="wrap" hidden>
+  <section class="hero">
+    <div class="clock" id="clk">--:--:--</div>
+    <select id="tz" aria-label="المنطقة الزمنية">
+      <option value="Asia/Riyadh">مكة المكرمة</option>
+      <option value="Asia/Dubai">دبي</option>
+      <option value="Asia/Tehran">طهران</option>
+      <option value="Africa/Cairo">القاهرة</option>
+      <option value="Europe/Istanbul">إسطنبول</option>
+      <option value="Europe/Berlin">برلين</option>
+      <option value="Europe/London">لندن</option>
+      <option value="America/New_York">نيويورك</option>
+    </select>
+    <div class="dates">
+      <div><b>ميلادي</b><span id="dg"></span></div>
+      <div><b>هجري قمري</b><span id="dh"></span></div>
+      <div><b>هجري شمسي</b><span id="ds"></span></div>
+    </div>
+  </section>
+
+  <div class="top"><h1>يومياتي</h1><button id="lk">قفل 🔒</button></div>
+  <div class="tabs">
+    <button id="t1" class="on">اليوم</button>
+    <button id="t2">الأرشيف</button>
+  </div>
+
+  <section id="today">
+    <div class="card">
+      <div class="row">
+        <input id="nt" placeholder="مهمة جديدة...">
+        <button id="add" class="pri">أضف</button>
+      </div>
+      <div class="row"><button id="pr">🕌 مهام الصلاة في المسجد</button></div>
+      <div class="prog"><div class="track"><div id="bar"></div></div><span id="pct">0%</span></div>
+      <ul id="list"></ul>
+    </div>
+    <div class="card">
+      <label for="note">يوميات اليوم</label>
+      <textarea id="note" placeholder="اكتب ما تريد عن يومك..."></textarea>
+    </div>
+  </section>
+
+  <section id="archive" hidden>
+    <div id="arch"></div>
+    <div class="bk">
+      <button id="exp">⬇ نسخة احتياطية</button>
+      <label>⬆ استيراد نسخة<input id="imp" type="file" accept=".json" hidden></label>
+    </div>
+  </section>
+</main>
+
+<script>
+const $=s=>document.querySelector(s), K='yawmiyati_v1';
+let S=JSON.parse(localStorage.getItem(K)||'null')||{pw:null,days:{},tz:'Asia/Riyadh'};
+const save=()=>localStorage.setItem(K,JSON.stringify(S));
+const pad=n=>String(n).padStart(2,'0');
+const key=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const esc=t=>t.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let cur=key(new Date());
+const D=()=>S.days[cur]||(S.days[cur]={tasks:[],note:''});
+
+async function hash(t){
+  if(window.crypto&&crypto.subtle){
+    const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('ym|'+t));
+    return [...new Uint8Array(b)].map(x=>pad(x.toString(16))).join('');
+  }
+  let h=5381;for(const c of 'ym|'+t)h=(h*33^c.charCodeAt(0))>>>0;return 'x'+h;
+}
+
+/* قفل */
+function lockUI(){
+  const first=!S.pw;
+  $('#lm').textContent=first?'أول مرة: اختر كلمة سر. ستُطلب منك عند كل دخول.':'أدخل كلمة السر للدخول.';
+  $('#p2').hidden=!first;$('#p1').value=$('#p2').value='';$('#err').textContent='';
+  $('#lock').hidden=false;$('#app').hidden=true;$('#p1').focus();
+}
+function enter(){$('#lock').hidden=true;$('#app').hidden=false;render();}
+$('#go').onclick=async()=>{
+  const a=$('#p1').value,e=$('#err');e.textContent='';
+  if(!S.pw){
+    if(a.length<4)return e.textContent='كلمة السر 4 أحرف على الأقل';
+    if(a!==$('#p2').value)return e.textContent='الكلمتان غير متطابقتين';
+    S.pw=await hash(a);save();enter();
+  }else if(await hash(a)===S.pw)enter();
+  else e.textContent='كلمة السر غير صحيحة';
+};
+['#p1','#p2'].forEach(s=>$(s).addEventListener('keydown',e=>{if(e.key==='Enter')$('#go').click()}));
+$('#lk').onclick=lockUI;
+
+/* التواريخ والساعة */
+const f=(loc,d,o)=>new Intl.DateTimeFormat(loc,o).format(d);
+const FULL={weekday:'long',day:'numeric',month:'long',year:'numeric'};
+const MOON=['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
+function moon(d){
+  const age=(((d/864e5+2440587.5)-2451550.1)/29.530588853%1+1)%1;
+  return MOON[Math.floor(age*8+.5)%8];
+}
+function dates(){
+  const d=new Date();
+  $('#dg').textContent=f('ar-u-ca-gregory-nu-latn',d,FULL);
+  $('#dh').textContent=f('ar-SA-u-ca-islamic-umalqura-nu-latn',d,FULL)+' '+moon(d);
+  $('#ds').textContent=f('fa-IR-u-ca-persian-nu-latn',d,FULL);
+}
+function tick(){
+  $('#clk').textContent=new Intl.DateTimeFormat('en-GB',{timeZone:S.tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date());
+  const k=key(new Date());
+  if(k!==cur){cur=k;if(!$('#app').hidden)render();}
+}
+$('#tz').value=S.tz;
+$('#tz').onchange=e=>{S.tz=e.target.value;save();tick();};
+setInterval(tick,1000);tick();
+
+/* المهام */
+const score=d=>d.tasks.length?Math.round(d.tasks.reduce((a,x)=>a+(x.s==='y'?1:x.s==='h'?.5:0),0)/d.tasks.length*100):0;
+const BTN=[['n','✗','لم تتم'],['h','½','نصف'],['y','✓','تمت']];
+function render(){
+  dates();
+  const d=S.days[cur]||{tasks:[],note:''};
+  $('#list').innerHTML=d.tasks.map((x,i)=>`<li><span>${esc(x.t)}</span><span class="seg">${
+    BTN.map(([v,l,a])=>`<button data-i="${i}" data-s="${v}" aria-label="${a}" class="${x.s===v?'on '+v:''}">${l}</button>`).join('')
+  }</span><button class="del" data-i="${i}" aria-label="حذف المهمة">×</button></li>`).join('')
+  ||'<p class="empty">لا توجد مهام بعد. أضف مهمة أو اضغط «مهام الصلاة».</p>';
+  const sc=score(d);$('#bar').style.width=sc+'%';$('#pct').textContent=sc+'%';
+  $('#note').value=d.note;
+  renderArchive();
+}
+function addTask(){
+  const v=$('#nt').value.trim();if(!v)return;
+  D().tasks.push({t:v});$('#nt').value='';save();render();
+}
+$('#add').onclick=addTask;
+$('#nt').addEventListener('keydown',e=>{if(e.key==='Enter')addTask()});
+$('#pr').onclick=()=>{
+  const d=D();
+  ['الفجر','الظهر','العصر','المغرب','العشاء'].forEach(p=>{
+    const t='صلاة '+p+' في المسجد';
+    if(!d.tasks.some(x=>x.t===t))d.tasks.push({t});
+  });
+  save();render();
+};
+$('#list').onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const d=D(),i=+b.dataset.i;
+  if(b.classList.contains('del'))d.tasks.splice(i,1);
+  else d.tasks[i].s=d.tasks[i].s===b.dataset.s?undefined:b.dataset.s;
+  save();render();
+};
+$('#note').oninput=e=>{D().note=e.target.value;save();};
+
+/* الأرشيف */
+function renderArchive(){
+  const ks=Object.keys(S.days).filter(k=>k<cur&&(S.days[k].tasks.length||S.days[k].note)).sort().reverse();
+  $('#arch').innerHTML=ks.map(k=>{
+    const d=S.days[k],dt=new Date(k+'T12:00:00');
+    return `<details><summary><span>${f('ar-u-ca-gregory-nu-latn',dt,FULL)}<small>${f('ar-SA-u-ca-islamic-umalqura-nu-latn',dt,{day:'numeric',month:'long',year:'numeric'})}</small></span><b>${score(d)}%</b></summary><ul>${
+      d.tasks.map(x=>`<li>${{y:'✓',h:'½',n:'✗'}[x.s]||'○'} ${esc(x.t)}</li>`).join('')
+    }</ul>${d.note?`<p class="nt">${esc(d.note)}</p>`:''}</details>`;
+  }).join('')||'<p class="empty">الأرشيف فارغ. ينتقل كل يوم إلى هنا تلقائيًا بعد انتهائه.</p>';
+}
+function tab(a){
+  $('#today').hidden=!a;$('#archive').hidden=a;
+  $('#t1').classList.toggle('on',a);$('#t2').classList.toggle('on',!a);
+}
+$('#t1').onclick=()=>tab(true);$('#t2').onclick=()=>tab(false);
+
+/* نسخة احتياطية */
+$('#exp').onclick=()=>{
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({days:S.days})],{type:'application/json'}));
+  a.download='yawmiyati-'+cur+'.json';a.click();
+};
+$('#imp').onchange=async e=>{
+  try{
+    const j=JSON.parse(await e.target.files[0].text());
+    if(!j.days)throw 0;
+    S.days=j.days;save();render();alert('تم الاستيراد');
+  }catch{alert('الملف غير صالح');}
+};
+
+lockUI();
+</script>
+</body>
+</html>
