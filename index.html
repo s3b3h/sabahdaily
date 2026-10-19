@@ -472,16 +472,17 @@ async function loadFirebase(){
   await fb.A.setPersistence(fb.auth,fb.A.browserSessionPersistence).catch(()=>{});
 }
 const docRef=()=>fb.F.doc(fb.db,"vaults",fb.auth.currentUser.uid);
-const cloudGet=async()=>{const s=await fb.F.getDoc(docRef());return s.exists()?s.data():null};
+const cloudGet=async()=>{const s=await fb.F.getDocFromServer(docRef());return s.exists()?s.data():null};
 const localKey=()=>LOCAL_PREFIX+userName;
 
 async function persist(){const v=await sealed();lastSaved=v.updated;if(CLOUD)await fb.F.setDoc(docRef(),v);else store.set(localKey(),JSON.stringify(v))}
 const setSync=t=>$("#hello").textContent=`أهلًا ${userName} · ${t}`;
 function save(){pending=true;clearTimeout(saveT);if(CLOUD)setSync("⏳ مزامنة…");
-  saveT=setTimeout(async()=>{try{await persist();pending=false;setSync(CLOUD?"☁️ متزامن":"💾 محفوظ هنا");$("#saved").textContent="✓ حُفظ";setTimeout(()=>$("#saved").textContent="",1500)}
+  saveT=setTimeout(async()=>{try{await persist();pending=false;setSync(CLOUD?"☁️ متزامن "+new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"💾 محفوظ هنا");$("#saved").textContent="✓ حُفظ";setTimeout(()=>$("#saved").textContent="",1500)}
     catch(e){console.error(e);setSync("⚠️ ما انحفظ، تأكد من الإنترنت");setTimeout(save,8000)}},500)}
-async function refreshFromCloud(){if(!CLOUD||!data||pending||!fb?.auth.currentUser)return;
-  try{const v=await cloudGet();if(v&&v.updated>lastSaved){data=await openWith(v,key);lastSaved=v.updated;render();if(!$("#v-archive").hidden)renderArchive();toast("☁️ وصلت تحديثات من جهازك الثاني")}}catch{}}
+async function refreshFromCloud(manual){if(!CLOUD||!data||pending||!fb?.auth.currentUser)return;
+  try{const v=await cloudGet();if(v&&v.updated>lastSaved){data=await openWith(v,key);lastSaved=v.updated;render();if(!$("#v-archive").hidden)renderArchive();toast("☁️ وصلت تحديثات من جهازك الثاني")}else if(manual===true)toast("✓ ما فيه تحديثات جديدة")}catch(e){if(manual===true)toast("⚠️ تعذّر الاتصال: "+(e.code||e.message))}}
+$("#hello").style.cursor="pointer";$("#hello").title="اضغط للتحديث";$("#hello").onclick=()=>refreshFromCloud(true);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshFromCloud()});
 setInterval(refreshFromCloud,60000);
 
@@ -492,12 +493,12 @@ function paintLock(){
   $("#lockMsg").textContent=signUp?"أنشئ حسابك: اختر اسم مستخدم وكلمة سر":"ادخل باسم المستخدم وكلمة السر";
   $("#lockBtn").textContent=signUp?"إنشاء الحساب":"دخول";
   $("#pw1").autocomplete=signUp?"new-password":"current-password";
-  $("#modeTxt").textContent=CLOUD?"☁️ المزامنة السحابية مفعّلة: ادخل من أي جهاز":(storageOK?"💾 الحفظ على هذا المتصفح (فعّل المزامنة عشان تدخل من أي جهاز)":"⚠️ هذي الصفحة ما تسمح بالحفظ. نزّل الملف وافتحه في المتصفح");
+  $("#modeTxt").textContent=CLOUD?"☁️ المزامنة السحابية مفعّلة (نسخة 2)":(storageOK?"💾 الحفظ على هذا المتصفح (فعّل المزامنة عشان تدخل من أي جهاز)":"⚠️ هذي الصفحة ما تسمح بالحفظ. نزّل الملف وافتحه في المتصفح");
 }
 function showLock(){
-  if(data&&pending){clearTimeout(saveT);persist().catch(()=>{})}
+  const out=()=>{if(CLOUD&&fb?.auth.currentUser)fb.A.signOut(fb.auth).catch(()=>{})};
+  if(data&&pending){clearTimeout(saveT);persist().catch(()=>{}).finally(out)}else out();
   key=null;data=null;viewKey=null;
-  if(CLOUD&&fb?.auth.currentUser)fb.A.signOut(fb.auth).catch(()=>{});
   $("#app").hidden=true;const l=$("#lock");l.style.display="grid";l.firstElementChild.classList.remove("out");
   $("#pw1").value=$("#pw2").value="";$("#lockErr").textContent="";
   const lu=store.get(LAST_USER);if(lu&&!$("#user").value)$("#user").value=lu;
@@ -537,6 +538,11 @@ $("#lockForm").addEventListener("submit",async e=>{
       if(signUp){if(raw)throw{code:"__exists"};salt=crypto.getRandomValues(new Uint8Array(16));key=await derive(p1,salt);data={days:{}};await persist()}
       else{if(!raw)throw{code:"__nouser"};try{await unseal(JSON.parse(raw),p1)}catch{throw{code:"__badpw"}}}
     }
+    if(CLOUD){const raw=store.get(localKey());
+      if(raw){try{const rv=JSON.parse(raw);const old=await openWith(rv,await derive(p1,unb64(rv.salt)));let n=0;
+        Object.entries(old.days).forEach(([k,d])=>{const c=data.days[k];if(!c||(!c.tasks.length&&!c.journal)){data.days[k]=d;n++}});
+        if(n){await persist();setTimeout(()=>toast("☁️ نُقل "+n+" يوم من هذا الجهاز للسحابة"),800)}
+        store.set(localKey()+".bak",raw);store.del(localKey())}catch(e){console.error(e)}}}
     store.set(LAST_USER,u);signUp=false;enter();
   }catch(err){console.error(err);const c=err&&err.code;
     lockErr(c==="__nouser"?"ما فيه حساب بهذا الاسم على هذا المتصفح، أنشئ حساب":c==="__exists"?"هذا الاسم موجود، سجّل دخول":c==="__badpw"?"كلمة السر غير صحيحة":c==="__decrypt"?"ما قدرت أفك تشفير بياناتك بهذي الكلمة":
