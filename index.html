@@ -191,6 +191,13 @@ dialog::backdrop{background:rgba(0,10,20,.55);backdrop-filter:blur(3px)}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
+.mvs{display:flex;flex-direction:column;gap:3px}
+.mv{background:none;border:1px solid var(--line);border-radius:8px;width:28px;height:22px;padding:0;font-size:11px;color:var(--muted);line-height:1}
+.mv:hover{border-color:var(--accent);color:var(--accent)}
+.task[draggable=true]{cursor:grab}
+.task.dragging{opacity:.4}
+.task.over{outline:2px dashed var(--accent);outline-offset:3px}
+
 </style>
 </head>
 <body data-theme="night">
@@ -578,9 +585,10 @@ function render(fresh){
   const c=x=>d.tasks.filter(t=>t.state===x).length;
   $("#counts").innerHTML=`<span><i style="background:var(--done)"></i>تم ${c("done")}</span><span><i style="background:var(--part)"></i>جزئي ${c("partial")}</span><span><i style="background:var(--miss)"></i>لم يتم ${c("missed")}</span><span><i style="background:var(--muted)"></i>باقي ${c("pending")}</span>`;
   $("#cheer").textContent=!d.tasks.length?"":s===100?"ما شاء الله! أنجزت كل شيء 🌟":s>=70?"قربت، كمّل 💪":s>=30?"بداية حلوة، استمر":"بسم الله، نبدأ ✨";
-  const tasks=[...d.tasks].sort((a,b)=>(a.time||"99").localeCompare(b.time||"99"));
+  const tasks=d.tasks;
   $("#list").innerHTML=tasks.length?tasks.map((t,i)=>`
-    <div class="card task ${t.state}" data-id="${t.id}" style="animation-delay:${fresh?i*40:0}ms">
+    <div class="card task ${t.state}" data-id="${t.id}" draggable="true" style="animation-delay:${fresh?i*40:0}ms">
+      <div class="mvs"><button class="mv" data-up title="فوق">▲</button><button class="mv" data-down title="تحت">▼</button></div>
       <div class="body"><div class="t">${esc(t.text)}</div><div class="meta"><span class="tag">${esc(t.cat)}</span>${t.time?`<span>⏰ ${t.time}</span>`:""}<span>${STATES[t.state]}</span></div></div>
       <div class="states">
         <button class="st d ${t.state==="done"?"on":""}" data-s="done" title="تم">✓</button>
@@ -590,7 +598,11 @@ function render(fresh){
     :`<div class="card empty"><span class="big">🌙</span>ما فيه مهام لليوم بعد<br>جرّب 🕌 الصلوات أو 📖 الورد أو 💡 الاقتراحات</div>`;
   if(document.activeElement!==$("#journal"))$("#journal").value=d.journal||"";
 }
+function moveTask(id,to){const d=day(curKey());const i=d.tasks.findIndex(x=>x.id===id);if(i<0)return;let j=typeof to==="number"?to:(to==="up"?i-1:i+1);
+  if(j<0||j>=d.tasks.length||j===i)return;const [m]=d.tasks.splice(i,1);d.tasks.splice(j,0,m);save();render()}
 $("#list").onclick=e=>{const el=e.target.closest(".task");if(!el)return;const d=day(curKey()),t=d.tasks.find(x=>x.id===el.dataset.id);
+  if(e.target.closest("[data-up]")){moveTask(t.id,"up");return}
+  if(e.target.closest("[data-down]")){moveTask(t.id,"down");return}
   if(e.target.closest("[data-del]")){el.classList.add("bye");setTimeout(()=>{d.tasks=d.tasks.filter(x=>x!==t);save();render()},330);return}
   const s=e.target.closest(".st");if(!s)return;const was=t.state;t.state=t.state===s.dataset.s?"pending":s.dataset.s;
   if(t.state==="done"&&was!=="done"){const r=s.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,26)}
@@ -600,6 +612,12 @@ $("#addForm").onsubmit=e=>{e.preventDefault();const txt=$("#taskTxt").value.trim
   if(!addTask(txt,$("#taskCat").value,$("#taskTime").value))return toast("المهمة موجودة");$("#taskTxt").value="";$("#taskTime").value="";save();render();$("#taskTxt").focus()};
 $("#prayBtn").onclick=e=>{let n=0;PRAYERS.forEach(p=>{if(addTask(`صلاة ${p} في المسجد`,"عبادة"))n++});save();render();
   const r=e.currentTarget.getBoundingClientRect();if(n)burst(r.left+r.width/2,r.top,20);toast(n?`🕌 أُضيفت ${n} صلوات`:"الصلوات موجودة مسبقًا")};
+
+let dragId=null;
+$("#list").addEventListener("dragstart",e=>{const el=e.target.closest(".task");if(!el)return;dragId=el.dataset.id;el.classList.add("dragging");e.dataTransfer.effectAllowed="move";try{e.dataTransfer.setData("text/plain",dragId)}catch{}});
+$("#list").addEventListener("dragend",e=>{const el=e.target.closest(".task");if(el)el.classList.remove("dragging");dragId=null;$$(".task.over").forEach(x=>x.classList.remove("over"))});
+$("#list").addEventListener("dragover",e=>{const el=e.target.closest(".task");if(!el||!dragId)return;e.preventDefault();$$(".task.over").forEach(x=>x!==el&&x.classList.remove("over"));el.classList.add("over")});
+$("#list").addEventListener("drop",e=>{const el=e.target.closest(".task");if(!el||!dragId)return;e.preventDefault();const d=day(curKey());const to=d.tasks.findIndex(x=>x.id===el.dataset.id);moveTask(dragId,to);dragId=null});
 
 /* ورد اليوم */
 $("#wirdOpts").innerHTML=WIRD.map(([a,b])=>`<button class="btn opt ${prefs.wird===a?"chipbtn":""}" data-w="${a}"><b>${a}</b><small>${b}</small></button>`).join("");
