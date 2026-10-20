@@ -252,6 +252,39 @@ button.cell:hover{transform:scale(1.15)}
 .task.dragging{opacity:.4}
 .task.over{outline:2px dashed var(--accent);outline-offset:3px}
 
+/* ===== تخطيط بكرة ===== */
+.tab{position:relative;white-space:nowrap}
+.tab .badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--accent);color:#1b1206;font-size:11px;font-weight:700;margin-inline-start:4px;vertical-align:middle;line-height:1}
+.tab .badge:empty{display:none}
+.tab.on .badge{background:#1b1206;color:var(--accent)}
+.banner small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.banner.plan-b{background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 18%,var(--card)),var(--card))}
+#v-today.plan .states,#v-today.plan .journal{display:none}
+#v-today.plan .task{border-inline-start:3px dashed color-mix(in srgb,var(--accent) 70%,transparent)}
+#v-today.plan .add{border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.pp{flex:none;border:1px solid var(--line);background:none;border-radius:999px;padding:3px 9px;font-size:11.5px;color:var(--muted);transition:.2s;white-space:nowrap;line-height:1.3}
+.pp:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+.nudge{display:flex;align-items:center;gap:10px;padding:12px 14px;margin-bottom:12px;border-color:color-mix(in srgb,var(--accent) 50%,transparent);animation:rise .5s;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 14%,var(--card)),var(--card))}
+.nudge[hidden]{display:none}
+.nudge .ico{font-size:26px;animation:float 4s ease-in-out infinite}
+.nudge .txt{flex:1;min-width:0;font-weight:700}
+.nudge .txt small{display:block;color:var(--muted);font-size:13px;font-weight:400}
+.nudge .x{background:none;border:none;color:var(--muted);font-size:15px;padding:4px 6px}
+.task .t{cursor:text}
+.toast{display:flex;align-items:center;gap:12px;max-width:calc(100% - 32px);width:max-content;text-align:center}
+.tbtn{background:#1b1206;color:var(--accent);border:none;border-radius:9px;padding:4px 12px;font-weight:700;flex:none}
+.hint{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;opacity:.8}
+@media (max-width:660px){
+  .tabs{width:100%}
+  .tab{flex:1;padding:8px 4px;font-size:15px}
+  .dur{grid-template-columns:repeat(2,1fr)}
+  .banner{flex-wrap:wrap}
+  .banner .btn{width:100%}
+  .nudge{flex-wrap:wrap}
+  .nudge .btn.gold{width:100%}
+  .pp{padding:3px 7px;font-size:11px}
+}
+
 </style>
 </head>
 <body data-theme="night">
@@ -304,12 +337,20 @@ button.cell:hover{transform:scale(1.15)}
 
   <nav class="tabs card">
     <button class="tab on" data-tab="today">اليوم</button>
+    <button class="tab" data-tab="tomorrow">🌙 بكرة<span class="badge" id="tmBadge"></span></button>
     <button class="tab" data-tab="challenges">التحديات</button>
     <button class="tab" data-tab="archive">الأرشيف</button>
   </nav>
 
   <div id="v-today">
     <div class="card banner" id="banner"><span id="bannerTxt"></span><button class="btn" id="backToday">رجوع لليوم</button></div>
+
+    <div class="card nudge" id="nudge" hidden>
+      <span class="ico">🌙</span>
+      <div class="txt">قبل لا تنام… خطّط مهام بكرة<small>اكتبها الحين وارتاح، وبتلقاها جاهزة أول ما يبدأ يومك</small></div>
+      <button class="btn gold" id="nudgeBtn">📝 خطّط لبكرة</button>
+      <button class="x" id="nudgeX" title="إخفاء">✕</button>
+    </div>
 
     <div class="card progress">
       <div class="ring"><svg width="84" height="84"><circle class="bgc" cx="42" cy="42" r="36"/><circle class="fg" id="ringFg" cx="42" cy="42" r="36" stroke-dasharray="226.2" stroke-dashoffset="226.2"/></svg><span id="pctTxt">0%</span></div>
@@ -326,7 +367,7 @@ button.cell:hover{transform:scale(1.15)}
       <input type="text" id="taskTxt" placeholder="اكتب مهمة جديدة…" required>
       <input type="time" id="taskTime" title="وقت (اختياري)">
       <select id="taskCat"><option>عام</option><option>عبادة</option><option>عمل</option><option>دراسة</option><option>صحة</option><option>بيت</option><option>أهل</option><option>شخصي</option></select>
-      <button class="btn gold">＋ إضافة</button>
+      <button class="btn gold" id="addBtn">＋ إضافة</button>
       <div class="quick">
         <button type="button" class="btn chipbtn" id="prayBtn">🕌 صلوات اليوم في المسجد</button>
         <button type="button" class="btn chipbtn" id="wirdBtn">📖 ورد اليوم</button>
@@ -336,6 +377,7 @@ button.cell:hover{transform:scale(1.15)}
     </form>
 
     <div class="list" id="list"></div>
+    <div class="hint" id="listHint"></div>
 
     <div class="card journal">
       <h3>يوميات اليوم</h3>
@@ -469,7 +511,9 @@ const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const normUser=u=>u.trim().toLowerCase().replace(/\s+/g,"_");
-function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2400)}
+function toast(m,act){const t=$("#toast");t.textContent=m;
+  if(act){const b=document.createElement("button");b.className="tbtn";b.textContent=act.label;b.onclick=()=>{t.classList.remove("show");act.fn()};t.appendChild(b)}
+  t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),act?4500:2400)}
 const cryptoOK=!!(window.crypto&&crypto.subtle);
 
 /* ripple على كل زر */
@@ -654,17 +698,30 @@ const addDays=(k,n)=>kDate(k,n).toISOString().slice(0,10);
 TZ.forEach(([v,n])=>$("#tz").add(new Option("🕰 توقيت "+n,v)));
 for(let h=0;h<12;h++)$("#dayStart").add(new Option(h===0?"منتصف الليل 12:00":`${h}:00 فجرًا`,h));
 function timeParts(tz){const p=new Intl.DateTimeFormat("en-GB",{timeZone:tz,hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:!!+prefs.h12}).formatToParts(new Date());const g=t=>(p.find(x=>x.type===t)||{}).value||"";return{h:g("hour"),m:g("minute"),s:g("second"),ap:g("dayPeriod")}}
-let lastDay=null;
+let lastDay=null,nudgeChecked=false;
 function tick(){if(!data)return;const t=timeParts(prefs.tz);
   $("#hh").textContent=t.h;$("#mm").textContent=t.m;const ss=$("#ss");if(ss.textContent!==t.s){ss.textContent=t.s;ss.classList.remove("tick");void ss.offsetWidth;ss.classList.add("tick")}
   $("#ap").textContent=t.ap?(/am/i.test(t.ap)?"ص":"م"):"";
   $("#minis").innerHTML=TZ.slice(0,3).filter(z=>z[0]!==prefs.tz).map(([z,n])=>{const x=timeParts(z);return `<span>${n} <b>${x.h}:${x.m}</b></span>`}).join("");
-  const tk=todayKey();if(lastDay&&tk!==lastDay){toast("🌅 بدأ يوم جديد، وانتقل أمس للأرشيف");if(!viewKey)render(true);checkMiles();if(!$("#v-challenges").hidden)renderChallenges()}lastDay=tk;
+  const tk=todayKey();if(lastDay&&tk!==lastDay){const planned=(data.days[tk]?.tasks||[]).length;
+    toast(planned?`🌅 صباح الخير! جاهزة لك ${planned} مهام خطّطتها أمس`:"🌅 بدأ يوم جديد، وانتقل أمس للأرشيف");
+    if(viewKey===tk)viewKey=null; /* كان يخطط لبكرة وصار اليوم */
+    if(!$("#v-today").hidden){showTab("today");render(true)}else updateTmBadge();checkMiles();if(!$("#v-challenges").hidden)renderChallenges()}lastDay=tk;
+  if(t.s==="00"||!nudgeChecked){nudgeChecked=true;updateNudge()}
   if(+prefs.autoLock&&Date.now()-lastAct>prefs.autoLock*60e3)showLock()}
 setInterval(tick,1000);
 
 /* ================= اليوم ================= */
 const curKey=()=>viewKey||todayKey();
+const tmKey=()=>addDays(todayKey(),1);
+const isPlan=()=>!!viewKey&&viewKey>=tmKey();
+/* تذكير المساء: يظهر بعد 7 المساء لو ما خطّطت لبكرة */
+function updateNudge(){const n=$("#nudge");if(!data||!n)return;
+  const h=+new Intl.DateTimeFormat("en-GB",{timeZone:prefs.tz,hour:"2-digit",hourCycle:"h23"}).format(new Date());
+  const evening=h>=19||h<+prefs.dayStart;
+  const planned=(data.days[tmKey()]?.tasks||[]).length;
+  n.hidden=!(evening&&!viewKey&&!planned&&prefs.nudgeOff!==todayKey());}
+function updateTmBadge(){if(!data)return;const n=(data.days[tmKey()]?.tasks||[]).length;$("#tmBadge").textContent=n||""}
 const day=k=>data.days[k]||(data.days[k]={tasks:[],journal:""});
 function score(d){const n=d.tasks.length;if(!n)return null;return Math.round(d.tasks.reduce((a,t)=>a+(t.state==="done"?1:t.state==="partial"?.5:0),0)/n*100)}
 let prevScore=0;
@@ -672,15 +729,32 @@ function addTask(text,cat="عام",time=""){const d=day(curKey());if(d.tasks.som
 function render(fresh){
   if(!data)return;const k=curKey(),d=day(k),ds=dates(k);
   $("#wd").textContent=ds.wd;$("#greg").textContent=ds.greg;$("#hijri").textContent=ds.hijri;$("#shamsi").textContent=ds.shamsi;
-  $("#banner").classList.toggle("show",!!viewKey);$("#bannerTxt").textContent=viewKey?`📚 من الأرشيف: ${ds.wd} ${ds.greg}`:"";
-  $("#progTitle").textContent=viewKey?"إنجاز ذلك اليوم":"إنجاز اليوم";
+  const plan=isPlan(),tk=todayKey();
+  $("#v-today").classList.toggle("plan",plan);
+  $$(".tab").forEach(b=>{if(b.dataset.tab==="today"||b.dataset.tab==="tomorrow")b.classList.toggle("on",!$("#v-today").hidden&&(b.dataset.tab==="tomorrow")===plan)});
+  $("#banner").classList.toggle("show",!!viewKey);$("#banner").classList.toggle("plan-b",plan);
+  $("#bannerTxt").innerHTML=!viewKey?"":plan?`🌙 <b>تخطيط مهام بكرة</b> · ${ds.wd} ${esc(ds.greg)}<small>المهام اللي تضيفها هنا بتظهر تلقائيًا في "اليوم" أول ما يبدأ يومك الجديد</small>`:`📚 من الأرشيف: ${ds.wd} ${esc(ds.greg)}`;
+  $("#backToday").textContent=plan?"☀️ مهام اليوم":"رجوع لليوم";
+  $("#progTitle").textContent=plan?"خطة بكرة":viewKey?"إنجاز ذلك اليوم":"إنجاز اليوم";
+  $("#taskTxt").placeholder=plan?"اكتب مهمة لبكرة…":"اكتب مهمة جديدة…";
+  $("#addBtn").textContent=plan?"＋ لبكرة":"＋ إضافة";
+  $("#copyBtn").textContent=plan?"↪ انقل غير المنجز من اليوم":"↺ مهام أمس غير المنجزة";
+  $("#prayBtn").textContent=plan?"🕌 صلوات بكرة في المسجد":"🕌 صلوات اليوم في المسجد";
+  $("#wirdBtn").textContent=plan?"📖 ورد بكرة":"📖 ورد اليوم";
+  const c=x=>d.tasks.filter(t=>t.state===x).length;
+  if(plan){const n=d.tasks.length;$("#ringFg").style.strokeDashoffset=226.2*(1-Math.min(n,8)/8);$("#pctTxt").textContent=n;prevScore=0;
+    const timed=d.tasks.filter(t=>t.time).length;
+    $("#counts").innerHTML=`<span>📝 ${n} مهام مخططة</span>${timed?`<span>⏰ ${timed} بوقت محدد</span>`:""}`;
+    $("#cheer").textContent=!n?"ابدأ بأهم 3 مهام لبكرة ✨":n<3?"حلو، أضف اللي ببالك ونام مرتاح 🌙":"خطة جاهزة! تصبح على خير 🤍";
+  }else{
   const s=score(d)||0;$("#ringFg").style.strokeDashoffset=226.2*(1-s/100);
   const pt=$("#pctTxt"),from=fresh?0:prevScore;let st=null;const anim=ts=>{st??=ts;const p=Math.min(1,(ts-st)/600);pt.textContent=Math.round(from+(s-from)*p)+"%";if(p<1)requestAnimationFrame(anim)};requestAnimationFrame(anim);
   if(!fresh&&s===100&&prevScore<100&&d.tasks.length)celebrate();prevScore=s;
-  const c=x=>d.tasks.filter(t=>t.state===x).length;
   $("#counts").innerHTML=`<span><i style="background:var(--done)"></i>تم ${c("done")}</span><span><i style="background:var(--part)"></i>جزئي ${c("partial")}</span><span><i style="background:var(--miss)"></i>لم يتم ${c("missed")}</span><span><i style="background:var(--muted)"></i>باقي ${c("pending")}</span>`;
   $("#cheer").textContent=!d.tasks.length?"":s===100?"ما شاء الله! أنجزت كل شيء 🌟":s>=70?"قربت، كمّل 💪":s>=30?"بداية حلوة، استمر":"بسم الله، نبدأ ✨";
-  const tasks=d.tasks;
+  }
+  const tasks=d.tasks,live=!viewKey;
+  const ppBtn=t=>plan?`<button class="pp" data-pp="back" title="انقلها لليوم">↩ اليوم</button>`:(live&&t.state!=="done")?`<button class="pp" data-pp="next" title="أجّلها لبكرة">⏭ بكرة</button>`:"";
   $("#list").innerHTML=tasks.length?tasks.map((t,i)=>`
     <div class="card task ${t.state}" data-id="${t.id}" draggable="true" style="animation-delay:${fresh?i*40:0}ms">
       <div class="mvs"><button class="mv" data-up title="فوق">▲</button><button class="mv" data-down title="تحت">▼</button></div>
@@ -689,8 +763,11 @@ function render(fresh){
         <button class="st d ${t.state==="done"?"on":""}" data-s="done" title="تم">✓</button>
         <button class="st p ${t.state==="partial"?"on":""}" data-s="partial" title="جزئي">½</button>
         <button class="st m ${t.state==="missed"?"on":""}" data-s="missed" title="لم يتم">✗</button>
-      </div><button class="del" data-del title="حذف">🗑</button></div>`).join("")
+      </div>${ppBtn(t)}<button class="del" data-del title="حذف">🗑</button></div>`).join("")
+    :plan?`<div class="card empty"><span class="big">📝</span>ما خطّطت لبكرة بعد<br>اكتب مهامك فوق، أو انقل اللي ما خلص اليوم بضغطة ↪</div>`
     :`<div class="card empty"><span class="big">🌙</span>ما فيه مهام لليوم بعد<br>جرّب 🕌 الصلوات أو 📖 الورد أو 💡 الاقتراحات</div>`;
+  $("#listHint").textContent=tasks.length?"نقرتين على المهمة لتعديلها · اسحبها لتغيير الترتيب":"";
+  updateTmBadge();updateNudge();
   if(document.activeElement!==$("#journal"))$("#journal").value=d.journal||"";
   renderStrip();
 }
@@ -699,11 +776,23 @@ function moveTask(id,to){const d=day(curKey());const i=d.tasks.findIndex(x=>x.id
 $("#list").onclick=e=>{const el=e.target.closest(".task");if(!el)return;const d=day(curKey()),t=d.tasks.find(x=>x.id===el.dataset.id);
   if(e.target.closest("[data-up]")){moveTask(t.id,"up");return}
   if(e.target.closest("[data-down]")){moveTask(t.id,"down");return}
-  if(e.target.closest("[data-del]")){el.classList.add("bye");setTimeout(()=>{d.tasks=d.tasks.filter(x=>x!==t);save();render()},330);return}
+  if(e.target.closest("[data-del]")){el.classList.add("bye");setTimeout(()=>{const idx=d.tasks.indexOf(t);d.tasks=d.tasks.filter(x=>x!==t);save();render();
+    toast("🗑 انحذفت المهمة",{label:"تراجع",fn:()=>{d.tasks.splice(Math.min(idx,d.tasks.length),0,t);save();render()}})},330);return}
+  const pp=e.target.closest("[data-pp]");
+  if(pp){const target=pp.dataset.pp==="next"?tmKey():todayKey(),td=day(target);
+    if(td.tasks.some(x=>x.text===t.text)){toast("المهمة موجودة هناك مسبقًا");return}
+    el.classList.add("bye");setTimeout(()=>{d.tasks=d.tasks.filter(x=>x!==t);td.tasks.push({...t,id:uid(),state:"pending"});save();render();
+      toast(pp.dataset.pp==="next"?"⏭ تأجّلت لبكرة":"↩ انتقلت لمهام اليوم")},330);return}
   const s=e.target.closest(".st");if(!s)return;const was=t.state;t.state=t.state===s.dataset.s?"pending":s.dataset.s;
   if(t.state==="done"&&was!=="done"){const r=s.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,26)}
   else if(t.state==="partial"){const r=s.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,10,["#e0a845","#f0d98a"])}
   save();render()};
+/* تعديل نص المهمة بنقرتين */
+$("#list").addEventListener("dblclick",e=>{const tx=e.target.closest(".t"),el=e.target.closest(".task");if(!tx||!el)return;
+  const t=day(curKey()).tasks.find(x=>x.id===el.dataset.id);if(!t)return;const n=prompt("عدّل المهمة:",t.text);
+  if(n==null)return;const v=n.trim();if(!v||v===t.text)return;t.text=v;save();render();toast("✏️ تم التعديل")});
+$("#nudgeBtn").onclick=()=>{viewKey=tmKey();showTab("today");render(true);setTimeout(()=>$("#taskTxt").focus(),100)};
+$("#nudgeX").onclick=()=>{prefs.nudgeOff=todayKey();savePrefs();updateNudge()};
 $("#addForm").onsubmit=e=>{e.preventDefault();const txt=$("#taskTxt").value.trim();if(!txt)return;
   if(!addTask(txt,$("#taskCat").value,$("#taskTime").value))return toast("المهمة موجودة");$("#taskTxt").value="";$("#taskTime").value="";save();render();$("#taskTxt").focus()};
 $("#prayBtn").onclick=e=>{let n=0;PRAYERS.forEach(p=>{if(addTask(`صلاة ${p} في المسجد`,"عبادة"))n++});save();render();
@@ -734,8 +823,8 @@ $("#sugBody").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;const t
   save();render()};
 $("#randBtn").onclick=()=>{const all=Object.entries(SUGGEST).flatMap(([c,a])=>a.map(t=>[t,c]));const have=new Set(day(curKey()).tasks.map(t=>t.text));
   const pool=all.filter(([t])=>!have.has(t)).sort(()=>Math.random()-.5).slice(0,3);pool.forEach(([t,c])=>addTask(t,CATMAP[c]));save();render();paintSug();toast(pool.length?"🎲 "+pool.map(p=>p[0]).join("، "):"أضفت كل الاقتراحات!")};
-$("#copyBtn").onclick=()=>{const k=curKey(),prev=data.days[addDays(k,-1)];if(!prev)return toast("ما فيه سجل لأمس");
-  let n=0;prev.tasks.filter(t=>t.state!=="done").forEach(t=>{if(addTask(t.text,t.cat,t.time))n++});save();render();toast(n?`↺ نُقلت ${n} مهام`:"ما فيه مهام متبقية")};
+$("#copyBtn").onclick=()=>{const k=curKey(),plan=isPlan(),prev=data.days[addDays(k,-1)];if(!prev)return toast(plan?"ما فيه مهام اليوم":"ما فيه سجل لأمس");
+  let n=0;prev.tasks.filter(t=>t.state!=="done").forEach(t=>{if(addTask(t.text,t.cat,t.time))n++});save();render();toast(n?(plan?`↪ اننسخت ${n} مهام لبكرة`:`↺ نُقلت ${n} مهام`):"ما فيه مهام متبقية")};
 $("#journal").oninput=()=>{day(curKey()).journal=$("#journal").value;save()};
 $("#backToday").onclick=()=>{viewKey=null;render(true)};
 
@@ -871,15 +960,16 @@ $("#chForm").onsubmit=e=>{e.preventDefault();const name=$("#chName").value.trim(
 
 /* أرشيف */
 function renderArchive(){const q=$("#search").value.trim(),tk=todayKey();
-  const keys=Object.keys(data.days).filter(k=>k!==tk&&(data.days[k].tasks.length||data.days[k].journal)).sort().reverse().filter(k=>!q||JSON.stringify(data.days[k]).includes(q)||Object.values(dates(k)).join(" ").includes(q));
+  const keys=Object.keys(data.days).filter(k=>k<tk&&(data.days[k].tasks.length||data.days[k].journal)).sort().reverse().filter(k=>!q||JSON.stringify(data.days[k]).includes(q)||Object.values(dates(k)).join(" ").includes(q));
   $("#archList").innerHTML=keys.length?keys.map((k,i)=>{const d=data.days[k],ds=dates(k),s=score(d);
     return `<button class="card day" data-k="${k}" style="animation-delay:${i*40}ms"><span class="wd">${ds.wd}</span><span class="dt">${ds.greg}<small>${ds.hijri} · ${ds.shamsi}</small><small>${d.tasks.length} مهام${d.journal?" · 📝 "+esc(d.journal.slice(0,50)):""}</small></span>
       <span class="pct" style="color:${s==null?"var(--muted)":s>=80?"var(--done)":s>=50?"var(--part)":"var(--miss)"}">${s==null?"—":s+"%"}</span></button>`}).join("")
     :`<div class="card empty"><span class="big">📚</span>الأرشيف فاضي حاليًا<br>كل يوم ينتهي ينتقل هنا تلقائيًا</div>`}
 $("#search").oninput=renderArchive;
 $("#archList").onclick=e=>{const b=e.target.closest(".day");if(!b)return;viewKey=b.dataset.k;showTab("today");render(true);scrollTo({top:0,behavior:"smooth"})};
-function showTab(t){$$(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));$("#v-today").hidden=t!=="today";$("#v-archive").hidden=t!=="archive";$("#v-challenges").hidden=t!=="challenges";if(t==="archive")renderArchive();if(t==="challenges"){checkMiles();renderChallenges()}}
-$$(".tab").forEach(b=>b.onclick=()=>{if(b.dataset.tab==="today")viewKey=null;showTab(b.dataset.tab);if(b.dataset.tab==="today")render(true)});
+function showTab(t){if(t==="tomorrow"){viewKey=tmKey();t="today"}
+  $$(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===(t==="today"&&isPlan()?"tomorrow":t)));$("#v-today").hidden=t!=="today";$("#v-archive").hidden=t!=="archive";$("#v-challenges").hidden=t!=="challenges";if(t==="archive")renderArchive();if(t==="challenges"){checkMiles();renderChallenges()}}
+$$(".tab").forEach(b=>b.onclick=()=>{const t=b.dataset.tab;if(t==="today")viewKey=null;showTab(t);if(t==="today"||t==="tomorrow")render(true)});
 
 /* إعدادات */
 function applyPrefs(){document.body.dataset.theme=prefs.theme;["tz","h12","dayStart","hOff","autoLock","motion"].forEach(id=>$("#"+id).value=prefs[id]);$$(".sw").forEach(s=>s.classList.toggle("on",s.dataset.t===prefs.theme))}
