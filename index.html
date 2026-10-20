@@ -111,9 +111,9 @@ header{display:flex;justify-content:space-between;align-items:center;gap:10px;ma
 .quick{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 .chipbtn{background:color-mix(in srgb,var(--accent) 13%,transparent);border-color:color-mix(in srgb,var(--accent) 55%,transparent);font-weight:500}
 
-.list{margin-top:12px;display:grid;gap:9px}
-.task{padding:13px 15px;display:flex;align-items:center;gap:12px;border-inline-start:4px solid var(--line);animation:in .35s cubic-bezier(.2,.8,.2,1) both;transition:transform .2s,border-color .3s,opacity .3s}
-.task:hover{transform:translateX(-4px)}
+.list{margin-top:10px;display:grid;gap:5px}
+.task{padding:7px 10px;display:flex;align-items:center;gap:8px;border-radius:13px;border-inline-start:3px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.18);animation:in .35s cubic-bezier(.2,.8,.2,1) both;transition:transform .2s,border-color .3s,opacity .3s,background .3s}
+.task:hover{transform:translateX(-3px)}
 @keyframes in{from{opacity:0;transform:translateY(10px) scale(.98)}}
 .task.bye{animation:bye .35s forwards}
 @keyframes bye{to{opacity:0;transform:translateX(60px);height:0;padding:0;margin:0}}
@@ -121,21 +121,23 @@ header{display:flex;justify-content:space-between;align-items:center;gap:10px;ma
 .task.partial{border-inline-start-color:var(--part)}
 .task.missed{border-inline-start-color:var(--miss)}
 .task .body{flex:1;min-width:0}
-.task .t{font-size:17px;word-break:break-word;transition:opacity .3s}
-.task.done .t{text-decoration:line-through;text-decoration-color:var(--done);opacity:.7}
-.meta{font-size:13px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
-.tag{border:1px solid var(--line);border-radius:999px;padding:0 9px}
-.states{display:flex;gap:5px}
-.st{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:15px;opacity:.85;transition:.2s}
+.task .t{font-size:15px;line-height:1.35;word-break:break-word;transition:opacity .3s}
+.task.done .t{text-decoration:line-through;text-decoration-color:var(--done);opacity:.65}
+.task.done{background:color-mix(in srgb,var(--done) 7%,var(--card))}
+.meta{font-size:11.5px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;line-height:1.3;margin-top:2px}
+.tag{border:1px solid var(--line);border-radius:999px;padding:0 7px}
+.states{display:flex;gap:2px;padding:2px;border-radius:11px;border:1px solid var(--line);background:rgba(0,0,0,.12);flex:none}
+body[data-theme="paper"] .states{background:rgba(255,255,255,.4)}
+.st{width:29px;height:29px;border-radius:9px;border:none;background:none;font-size:13px;opacity:.7;transition:.2s;padding:0}
 .st:hover{opacity:1;transform:scale(1.08)}
 .st.on{opacity:1;color:#fff;border-color:transparent;transform:scale(1.05)}
 .st.d.on{background:var(--done);box-shadow:0 0 16px color-mix(in srgb,var(--done) 60%,transparent)}
 .st.p.on{background:var(--part);box-shadow:0 0 16px color-mix(in srgb,var(--part) 60%,transparent)}
 .st.m.on{background:var(--miss);box-shadow:0 0 16px color-mix(in srgb,var(--miss) 60%,transparent)}
-.del{background:none;border:none;color:var(--muted);font-size:17px;padding:4px 6px;transition:.2s}
+.del{background:none;border:none;color:var(--muted);font-size:14px;padding:4px;transition:.2s;flex:none;opacity:.7}
 .del:hover{color:var(--miss);transform:rotate(-12deg) scale(1.15)}
-.empty{text-align:center;color:var(--muted);padding:30px}
-.empty .big{font-size:36px;display:block;margin-bottom:6px;animation:float 4s ease-in-out infinite}
+.empty{text-align:center;color:var(--muted);padding:18px;font-size:14px}
+.empty .big{font-size:28px;display:block;margin-bottom:4px;animation:float 4s ease-in-out infinite}
 
 .journal{padding:18px;margin-top:12px}
 .journal h3,.section-h{font-family:Amiri,serif;font-size:26px;margin:0 0 8px;color:var(--accent);font-weight:700}
@@ -185,14 +187,66 @@ dialog::backdrop{background:rgba(0,10,20,.55);backdrop-filter:blur(3px)}
   .add{grid-template-columns:1fr 1fr}
   .add input[type=text]{grid-column:1/-1}
   .add .btn.gold{grid-column:1/-1}
-  .task{flex-wrap:wrap}
-  .states{margin-inline-start:auto}
+  .task{padding:6px 8px;gap:6px}
+  .st{width:28px;height:28px}
   .grid-opts{grid-template-columns:repeat(2,1fr)}
+  .dur{grid-template-columns:repeat(2,1fr)}
+  .ch-actions .btn{flex:1}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
-.mvs{display:flex;flex-direction:column;gap:3px}
-.mv{background:none;border:1px solid var(--line);border-radius:8px;width:28px;height:22px;padding:0;font-size:11px;color:var(--muted);line-height:1}
+.mvs{display:flex;flex-direction:column;gap:1px;flex:none}
+.mv{background:none;border:none;border-radius:6px;width:20px;height:14px;padding:0;font-size:8px;color:var(--muted);line-height:1;opacity:.6}
+.mv:hover{opacity:1}
+.task:first-child .mv[data-up],.task:last-child .mv[data-down]{visibility:hidden}
+
+/* ===== التحديات ===== */
+input[type=date],input[type=number]{background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:13px;padding:9px 12px;outline:none;color-scheme:dark}
+body[data-theme="paper"] input[type=date]{color-scheme:light}
+.seg{display:flex;gap:4px;padding:4px;border-radius:14px;background:rgba(0,0,0,.15);border:1px solid var(--line);margin:12px 0}
+.seg button{flex:1;border:none;background:none;padding:9px 6px;border-radius:10px;color:var(--muted);font-weight:500;transition:.2s}
+.seg button.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1b1206;font-weight:700}
+.dur{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.dur .opt{padding:10px 4px}
+.emos{display:flex;flex-wrap:wrap;gap:6px}
+.emo{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:18px;padding:0;transition:.2s}
+.emo.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 22%,transparent);transform:scale(1.08)}
+.ch-head{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.ch-head p{margin:0;color:var(--muted);font-size:14px}
+.ch{padding:16px;margin-top:10px;animation:in .35s both}
+.ch-top{display:flex;gap:14px;align-items:center}
+.ring.ch-ring{width:70px;height:70px}
+.ring.ch-ring span{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
+.ring.ch-ring b{font-size:21px}
+.ring.ch-ring small{font-size:10px;color:var(--muted);font-weight:500}
+.ch-info{flex:1;min-width:0}
+.ch-title{font-weight:700;font-size:17px;line-height:1.35}
+.ch-sub{font-size:13px;color:var(--muted)}
+.cells{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cs),1fr));gap:3px;margin-top:12px}
+.cell{aspect-ratio:1;border-radius:4px;background:rgba(255,255,255,.07);border:none;padding:0;font-size:10px;color:var(--muted);display:grid;place-items:center;font-variant-numeric:tabular-nums}
+body[data-theme="paper"] .cell{background:rgba(0,0,0,.08)}
+.cell.ok{background:var(--done);color:#fff}
+.cell.no{background:color-mix(in srgb,var(--miss) 40%,transparent)}
+.cell.now{outline:2px solid var(--accent);outline-offset:1px}
+button.cell{cursor:pointer;transition:transform .15s}
+button.cell:hover{transform:scale(1.15)}
+.ch-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.ch.fin .ch-title::after{content:" 🏁"}
+.ch-sec{margin:18px 4px 2px;color:var(--muted);font-size:14px}
+.chs-strip{display:flex;gap:7px;overflow-x:auto;margin-top:10px;scrollbar-width:none;padding:2px}
+.chs-strip::-webkit-scrollbar{display:none}
+.chs-strip[hidden]{display:none}
+.chx{flex:none;display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:14px;cursor:pointer;min-width:165px;box-shadow:none;transition:border-color .2s}
+.chx:hover{border-color:var(--accent)}
+.chx .e{font-size:20px}
+.chx .x{flex:1;min-width:0}
+.chx .n{font-size:13.5px;font-weight:700;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.chx .s{font-size:11.5px;color:var(--muted);line-height:1.2}
+.chx .bar{height:4px;border-radius:4px;background:var(--line);margin-top:4px;overflow:hidden}
+.chx .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:4px}
+.chx .ck{width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:none;font-size:14px;padding:0;flex:none;transition:.2s}
+.chx .ck.on{background:var(--done);border-color:transparent;color:#fff;box-shadow:0 0 12px color-mix(in srgb,var(--done) 55%,transparent)}
+.chx.plus{border-style:dashed;color:var(--muted);font-size:13.5px;min-width:auto}
 .mv:hover{border-color:var(--accent);color:var(--accent)}
 .task[draggable=true]{cursor:grab}
 .task.dragging{opacity:.4}
@@ -250,6 +304,7 @@ dialog::backdrop{background:rgba(0,10,20,.55);backdrop-filter:blur(3px)}
 
   <nav class="tabs card">
     <button class="tab on" data-tab="today">اليوم</button>
+    <button class="tab" data-tab="challenges">التحديات</button>
     <button class="tab" data-tab="archive">الأرشيف</button>
   </nav>
 
@@ -264,6 +319,8 @@ dialog::backdrop{background:rgba(0,10,20,.55);backdrop-filter:blur(3px)}
         <div class="cheer" id="cheer"></div>
       </div>
     </div>
+
+    <div class="chs-strip" id="chStrip"></div>
 
     <form class="card add" id="addForm">
       <input type="text" id="taskTxt" placeholder="اكتب مهمة جديدة…" required>
@@ -285,6 +342,14 @@ dialog::backdrop{background:rgba(0,10,20,.55);backdrop-filter:blur(3px)}
       <textarea id="journal" placeholder="كيف كان يومك؟ ماذا تعلّمت؟ نعمة تشكر الله عليها…"></textarea>
       <div class="saved" id="saved"></div>
     </div>
+  </div>
+
+  <div id="v-challenges" hidden>
+    <div class="card ch-head">
+      <div><div class="section-h" style="margin:0">🏁 تحدياتي</div><p>ترك عادة أو تعلّم شي جديد: 30 يوم، 90 يوم، سنة، أو مدة تختارها</p></div>
+      <button class="btn gold" id="newCh">＋ تحدي جديد</button>
+    </div>
+    <div id="chList"></div>
   </div>
 
   <div id="v-archive" hidden>
@@ -309,6 +374,30 @@ dialog::backdrop{background:rgba(0,10,20,.55);backdrop-filter:blur(3px)}
   <div id="sugBody"></div>
   <div class="dlg-foot"><button class="btn chipbtn" id="randBtn">🎲 فاجئني بـ 3 مهام</button><button class="btn gold" data-close>تم</button></div>
 </div></dialog>
+
+<!-- تحدي جديد -->
+<dialog id="chDlg"><form class="card dlg" id="chForm" action="javascript:void 0">
+  <div class="section-h">🏁 تحدي جديد</div>
+  <div class="seg" id="chType">
+    <button type="button" data-v="quit" class="on">🚫 ترك عادة</button>
+    <button type="button" data-v="learn">🌱 تعلّم / عادة جديدة</button>
+  </div>
+  <div style="color:var(--muted);font-size:14px;margin-bottom:8px" id="chHint"></div>
+  <input type="text" id="chName" placeholder="اسم التحدي…" style="width:100%" maxlength="60" required>
+  <div class="chips" id="chSug" style="margin:8px 0 4px"></div>
+  <div class="sg-cat">الأيقونة</div>
+  <div class="emos" id="chEmo"></div>
+  <div class="sg-cat">المدة</div>
+  <div class="dur" id="chDur">
+    <button type="button" class="btn opt chipbtn" data-d="30"><b>30</b><small>يوم</small></button>
+    <button type="button" class="btn opt" data-d="90"><b>90</b><small>يوم</small></button>
+    <button type="button" class="btn opt" data-d="365"><b>سنة</b><small>365 يوم</small></button>
+    <button type="button" class="btn opt" data-d="0"><b>مخصص</b><small>أنت تحدد</small></button>
+  </div>
+  <div class="row" id="chCustomRow" style="display:none"><label>عدد الأيام</label><input type="number" id="chCustom" min="1" max="1000" value="40" style="width:110px"></div>
+  <div class="row"><label>تاريخ البداية</label><input type="date" id="chStart"></div>
+  <div class="dlg-foot"><button type="button" class="btn" data-close>إلغاء</button><button class="btn gold">ابدأ التحدي 🚀</button></div>
+</form></dialog>
 
 <!-- الإعدادات -->
 <dialog id="settings"><div class="card dlg">
@@ -461,7 +550,7 @@ function fxLoop(){fxc.clearRect(0,0,W,H);
 async function derive(pw,s){const base=await crypto.subtle.importKey("raw",enc.encode(pw),"PBKDF2",false,["deriveKey"]);
   return crypto.subtle.deriveKey({name:"PBKDF2",salt:s,iterations:200000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
 async function sealed(){const iv=crypto.getRandomValues(new Uint8Array(12));const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,enc.encode(JSON.stringify(data)));return{v:2,salt:b64(salt),iv:b64(iv),ct:b64(ct),updated:Date.now()}}
-async function openWith(v,k){const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(v.iv)},k,unb64(v.ct));const d=JSON.parse(dec.decode(pt));d.days=d.days||{};return d}
+async function openWith(v,k){const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(v.iv)},k,unb64(v.ct));const d=JSON.parse(dec.decode(pt));d.days=d.days||{};d.challenges=d.challenges||[];return d}
 async function unseal(v,pw){const s=unb64(v.salt),k=await derive(pw,s);data=await openWith(v,k);salt=s;key=k}
 
 /* ================= السحابة ================= */
@@ -481,7 +570,7 @@ function save(){pending=true;clearTimeout(saveT);if(CLOUD)setSync("⏳ مزام�
   saveT=setTimeout(async()=>{try{await persist();pending=false;setSync(CLOUD?"☁️ متزامن "+new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}):"💾 محفوظ هنا");$("#saved").textContent="✓ حُفظ";setTimeout(()=>$("#saved").textContent="",1500)}
     catch(e){console.error(e);setSync("⚠️ ما انحفظ، تأكد من الإنترنت");setTimeout(save,8000)}},500)}
 async function refreshFromCloud(manual){if(!CLOUD||!data||pending||!fb?.auth.currentUser)return;
-  try{const v=await cloudGet();if(v&&v.updated>lastSaved){data=await openWith(v,key);lastSaved=v.updated;render();if(!$("#v-archive").hidden)renderArchive();toast("☁️ وصلت تحديثات من جهازك الثاني")}else if(manual===true)toast("✓ ما فيه تحديثات جديدة")}catch(e){if(manual===true)toast("⚠️ تعذّر الاتصال: "+(e.code||e.message))}}
+  try{const v=await cloudGet();if(v&&v.updated>lastSaved){data=await openWith(v,key);lastSaved=v.updated;render();if(!$("#v-archive").hidden)renderArchive();if(!$("#v-challenges").hidden)renderChallenges();toast("☁️ وصلت تحديثات من جهازك الثاني")}else if(manual===true)toast("✓ ما فيه تحديثات جديدة")}catch(e){if(manual===true)toast("⚠️ تعذّر الاتصال: "+(e.code||e.message))}}
 $("#hello").style.cursor="pointer";$("#hello").title="اضغط للتحديث";$("#hello").onclick=()=>refreshFromCloud(true);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshFromCloud()});
 setInterval(refreshFromCloud,60000);
@@ -570,7 +659,7 @@ function tick(){if(!data)return;const t=timeParts(prefs.tz);
   $("#hh").textContent=t.h;$("#mm").textContent=t.m;const ss=$("#ss");if(ss.textContent!==t.s){ss.textContent=t.s;ss.classList.remove("tick");void ss.offsetWidth;ss.classList.add("tick")}
   $("#ap").textContent=t.ap?(/am/i.test(t.ap)?"ص":"م"):"";
   $("#minis").innerHTML=TZ.slice(0,3).filter(z=>z[0]!==prefs.tz).map(([z,n])=>{const x=timeParts(z);return `<span>${n} <b>${x.h}:${x.m}</b></span>`}).join("");
-  const tk=todayKey();if(lastDay&&tk!==lastDay){toast("🌅 بدأ يوم جديد، وانتقل أمس للأرشيف");if(!viewKey)render(true)}lastDay=tk;
+  const tk=todayKey();if(lastDay&&tk!==lastDay){toast("🌅 بدأ يوم جديد، وانتقل أمس للأرشيف");if(!viewKey)render(true);checkMiles();if(!$("#v-challenges").hidden)renderChallenges()}lastDay=tk;
   if(+prefs.autoLock&&Date.now()-lastAct>prefs.autoLock*60e3)showLock()}
 setInterval(tick,1000);
 
@@ -603,6 +692,7 @@ function render(fresh){
       </div><button class="del" data-del title="حذف">🗑</button></div>`).join("")
     :`<div class="card empty"><span class="big">🌙</span>ما فيه مهام لليوم بعد<br>جرّب 🕌 الصلوات أو 📖 الورد أو 💡 الاقتراحات</div>`;
   if(document.activeElement!==$("#journal"))$("#journal").value=d.journal||"";
+  renderStrip();
 }
 function moveTask(id,to){const d=day(curKey());const i=d.tasks.findIndex(x=>x.id===id);if(i<0)return;let j=typeof to==="number"?to:(to==="up"?i-1:i+1);
   if(j<0||j>=d.tasks.length||j===i)return;const [m]=d.tasks.splice(i,1);d.tasks.splice(j,0,m);save();render()}
@@ -649,6 +739,136 @@ $("#copyBtn").onclick=()=>{const k=curKey(),prev=data.days[addDays(k,-1)];if(!pr
 $("#journal").oninput=()=>{day(curKey()).journal=$("#journal").value;save()};
 $("#backToday").onclick=()=>{viewKey=null;render(true)};
 
+/* ================= التحديات ================= */
+const CH_EMO={quit:["🚬","📱","🍬","☕","🥤","🍔","🎮","😴","🗣️","💸","🚫"],learn:["📖","🧠","🏃","💪","🌍","✍️","💻","🎨","🤲","💧","🌱"]};
+const CH_SUG={quit:["ترك التدخين","ترك السكر","ترك المشروبات الغازية","تقليل الجوال والسوشال","ترك السهر","ترك الوجبات السريعة","ترك الغيبة"],
+  learn:["حفظ القرآن يوميًا","تعلّم الإنجليزي","قراءة كتاب يوميًا","رياضة يومية","تعلّم البرمجة","قيام الليل","شرب ماء كافي"]};
+const PRESETS=[30,90,365];
+const MILES=[3,7,14,21,30,40,60,90,100,150,180,200,250,300,365];
+const dDiff=(a,b)=>Math.round((kDate(a)-kDate(b))/864e5);
+const chs=()=>data.challenges||(data.challenges=[]);
+let chForm={type:"quit",emoji:"🚬",days:30,custom:false};
+
+/* حساب حالة التحدي
+   ترك عادة: كل يوم يمر بدون انتكاسة يُحسب، والانتكاسة (-1) تصفّر العداد
+   تعلّم: كل يوم تعلّم عليه (1) يُحسب ضمن مدة التحدي */
+function chStat(c){const tk=todayKey(),log=c.log||{},notStarted=tk<c.start;
+  if(c.type==="quit"){
+    const slips=Object.keys(log).filter(k=>log[k]===-1&&k>=c.start&&k<=tk).sort();
+    const last=slips[slips.length-1],from=last?addDays(last,1):c.start;
+    const streak=notStarted?0:Math.max(0,dDiff(tk,from)+1);
+    let best=0,run=0;if(!notStarted)for(let k=c.start;k<=tk;k=addDays(k,1)){if(log[k]===-1)run=0;else{run++;if(run>best)best=run}}
+    const done=Math.min(streak,c.days),fin=streak>=c.days;
+    return{streak,best,done,pct:Math.round(done/c.days*100),end:addDays(from,c.days-1),fin,left:Math.max(0,c.days-streak),slips:slips.length,todayOk:log[tk]===1,slipToday:log[tk]===-1,notStarted,from}
+  }
+  const end=addDays(c.start,c.days-1);
+  const done=Object.keys(log).filter(k=>log[k]===1&&k>=c.start&&k<=end).length;
+  let streak=0,k=log[tk]===1?tk:addDays(tk,-1);while(log[k]===1&&k>=c.start){streak++;k=addDays(k,-1)}
+  let best=0,run=0;for(let x=c.start;x<=end&&x<=tk;x=addDays(x,1)){if(log[x]===1){run++;if(run>best)best=run}else run=0}
+  const fin=tk>end||done>=c.days;
+  return{streak,best,done,pct:Math.round(done/c.days*100),end,fin,left:Math.max(0,dDiff(end,tk)+(notStarted?0:0)),todayOk:log[tk]===1,notStarted,from:c.start}
+}
+const durName=n=>n===30?"30 يوم":n===90?"90 يوم":n===365?"سنة":n+" يوم";
+const shortDate=k=>fmt("ar-u-ca-gregory-nu-latn",kDate(k),{day:"numeric",month:"short"});
+
+/* احتفال عند المراحل (7، 30، 90…) وعند إكمال التحدي */
+function checkMiles(){let changed=false;
+  chs().forEach(c=>{const s=chStat(c);if(s.notStarted)return;c.cel=c.cel||{};const tag=s.from+":",n=c.type==="quit"?s.streak:s.done;
+    const m=s.fin?"fin":MILES.includes(n)?n:null;
+    if(m&&!c.cel[tag+m]){c.cel[tag+m]=1;changed=true;
+      setTimeout(()=>{celebrate();toast(m==="fin"?`🏆 أكملت تحدي "${c.name}"! ما شاء الله`:`${c.emoji} ${m} يوم في "${c.name}"! استمر`)},400)}});
+  if(changed)save()}
+
+function toggleToday(id){const c=chs().find(x=>x.id===id);if(!c)return false;const tk=todayKey();c.log=c.log||{};
+  if(c.log[tk]===1)delete c.log[tk];else c.log[tk]=1;
+  save();checkMiles();return c.log[tk]===1}
+
+/* شريط مختصر للتحديات النشطة في صفحة اليوم */
+function renderStrip(){const el=$("#chStrip");if(!el||!data)return;
+  if(viewKey){el.innerHTML="";el.hidden=true;return}el.hidden=false;
+  const act=chs().map(c=>({c,s:chStat(c)})).filter(x=>!x.s.fin&&!x.s.notStarted);
+  el.innerHTML=act.map(({c,s})=>`<div class="card chx" data-id="${c.id}"><span class="e">${c.emoji}</span><div class="x"><div class="n">${esc(c.name)}</div>
+      <div class="s">${c.type==="quit"?`🔥 ${s.streak} يوم صامد`:`✅ ${s.done} من ${c.days}`} · ${s.pct}%</div><div class="bar"><i style="width:${s.pct}%"></i></div></div>
+      <button class="ck ${s.todayOk?"on":""}" data-ck title="${c.type==="quit"?"صامد اليوم":"أنجزته اليوم"}">✓</button></div>`).join("")+
+    `<button class="card chx plus" id="stripNew">＋ تحدي جديد</button>`;
+}
+$("#chStrip").onclick=e=>{if(e.target.closest("#stripNew")){openChDlg();return}
+  const x=e.target.closest(".chx");if(!x)return;
+  if(e.target.closest("[data-ck]")){const on=toggleToday(x.dataset.id);if(on){const r=e.target.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,18)}renderStrip();return}
+  showTab("challenges")};
+
+function chCard({c,s}){const tk=todayKey();
+  const total=Math.min(1000,c.type==="quit"?dDiff(s.end,c.start)+1:c.days),big=total>120;
+  let cells="";for(let i=0;i<total;i++){const k=addDays(c.start,i),v=(c.log||{})[k],past=k<=tk;
+    let cls="";if(past){if(c.type==="quit")cls=v===-1?"no":"ok";else cls=v===1?"ok":(k<tk?"no":"")}
+    if(k===tk)cls+=" now";
+    const tag=past?"button":"span";
+    cells+=`<${tag} class="cell ${cls}" ${past?`data-k="${k}" type="button"`:""} title="${shortDate(k)} · يوم ${i+1}">${big?"":i+1}</${tag}>`}
+  const sub=s.notStarted?`⏳ يبدأ ${shortDate(c.start)}`:
+    c.type==="quit"?`🔥 ${s.streak} يوم متواصل · أطول سلسلة ${s.best}${s.slips?` · انتكاسات ${s.slips}`:""}`
+    :`✅ أنجزت ${s.done} من ${c.days} · 🔥 سلسلة ${s.streak} · الأطول ${s.best}`;
+  const R=30,C=+(2*Math.PI*R).toFixed(1);
+  let btns="";
+  if(!s.fin&&!s.notStarted){
+    btns+=c.type==="learn"
+      ?`<button class="btn ${s.todayOk?"":"gold"}" data-a="today">${s.todayOk?"↩ إلغاء إنجاز اليوم":"✓ أنجزته اليوم"}</button>`
+      :`<button class="btn" data-a="slip" style="color:var(--miss)">${s.slipToday?"↩ إلغاء الانتكاسة":"😔 انتكست اليوم"}</button>`}
+  if(s.fin)btns+=`<button class="btn gold" data-a="again">🔁 كرّر التحدي</button>`;
+  btns+=`<button class="btn" data-a="del" style="margin-inline-start:auto">🗑 حذف</button>`;
+  return `<div class="card ch ${s.fin?"fin":""}" data-id="${c.id}">
+    <div class="ch-top">
+      <div class="ring ch-ring"><svg width="70" height="70"><circle class="bgc" cx="35" cy="35" r="${R}" style="stroke-width:7"/><circle class="fg" cx="35" cy="35" r="${R}" style="stroke-width:7" stroke-dasharray="${C}" stroke-dashoffset="${(C*(1-s.pct/100)).toFixed(1)}"/></svg>
+        <span><b>${s.done}</b><small>من ${c.days}</small></span></div>
+      <div class="ch-info"><div class="ch-title">${c.emoji} ${esc(c.name)}</div>
+        <div class="ch-sub">${c.type==="quit"?"🚫 ترك عادة":"🌱 تعلّم"} · ${durName(c.days)} · ${s.pct}%</div>
+        <div class="ch-sub">${sub}</div>
+        <div class="ch-sub">${s.fin?"🏆 انتهى التحدي":`🏁 ينتهي ${shortDate(s.end)} · باقي ${s.left} يوم`}</div></div>
+    </div>
+    <div class="cells" style="--cs:${big?11:total>40?20:26}px">${cells}</div>
+    <div class="ch-actions">${btns}</div></div>`}
+
+function renderChallenges(){const list=chs().map(c=>({c,s:chStat(c)}));
+  const act=list.filter(x=>!x.s.fin),fin=list.filter(x=>x.s.fin);
+  $("#chList").innerHTML=list.length?
+    act.map(chCard).join("")+(fin.length?`<div class="ch-sec">🏆 تحديات منتهية</div>`+fin.map(chCard).join(""):"")
+    :`<div class="card empty" style="margin-top:10px"><span class="big">🏁</span>ما عندك تحديات بعد<br>ابدأ بـ 30 يوم لترك عادة أو تعلّم شي جديد</div>`;
+}
+$("#chList").onclick=e=>{const el=e.target.closest(".ch");if(!el)return;const c=chs().find(x=>x.id===el.dataset.id);if(!c)return;c.log=c.log||{};const tk=todayKey();
+  const cell=e.target.closest("button.cell");
+  if(cell){const k=cell.dataset.k;
+    if(c.type==="quit"){if(c.log[k]===-1)delete c.log[k];else c.log[k]=-1}
+    else{if(c.log[k]===1)delete c.log[k];else{c.log[k]=1;const r=cell.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,10)}}
+    save();checkMiles();renderChallenges();return}
+  const a=e.target.closest("[data-a]");if(!a)return;const act=a.dataset.a;
+  if(act==="today"){if(toggleToday(c.id)){const r=a.getBoundingClientRect();burst(r.left+r.width/2,r.top,24)}}
+  else if(act==="slip"){if(c.log[tk]===-1)delete c.log[tk];else{if(!confirm("تسجّل انتكاسة اليوم؟ العداد بيبدأ من جديد بكرة. لا تيأس 🤍"))return;c.log[tk]=-1;toast("🤍 عادي، المهم تكمّل. بكرة بداية جديدة")}save()}
+  else if(act==="again"){chs().push({id:uid(),name:c.name,type:c.type,emoji:c.emoji,days:c.days,start:tk,log:{},cel:{},created:Date.now()});save();toast("🔁 بدأ التحدي من جديد")}
+  else if(act==="del"){if(!confirm(`تحذف تحدي "${c.name}"؟`))return;data.challenges=chs().filter(x=>x!==c);save()}
+  renderChallenges()};
+
+function paintChDlg(){
+  $$("#chType button").forEach(b=>b.classList.toggle("on",b.dataset.v===chForm.type));
+  $("#chHint").textContent=chForm.type==="quit"?"العداد يزيد تلقائيًا كل يوم، ولو انتكست سجّلها ويبدأ العداد من جديد":"علّم على كل يوم تنجز فيه العادة، وشوف سلسلتك تكبر";
+  $("#chName").placeholder=chForm.type==="quit"?"مثلًا: ترك التدخين":"مثلًا: تعلّم الإنجليزي";
+  $("#chSug").innerHTML=CH_SUG[chForm.type].map(s=>`<button type="button" class="chip">${s}</button>`).join("");
+  if(!CH_EMO[chForm.type].includes(chForm.emoji))chForm.emoji=CH_EMO[chForm.type][0];
+  $("#chEmo").innerHTML=CH_EMO[chForm.type].map(e=>`<button type="button" class="emo ${e===chForm.emoji?"on":""}">${e}</button>`).join("");
+  $$("#chDur .opt").forEach(b=>b.classList.toggle("chipbtn",chForm.custom?b.dataset.d==="0":+b.dataset.d===chForm.days));
+  $("#chCustomRow").style.display=chForm.custom?"flex":"none";
+}
+function openChDlg(){chForm={type:"quit",emoji:"🚬",days:30,custom:false};$("#chName").value="";$("#chStart").value=todayKey();paintChDlg();$("#chDlg").showModal()}
+$("#newCh").onclick=openChDlg;
+$("#chType").onclick=e=>{const b=e.target.closest("button");if(!b)return;chForm.type=b.dataset.v;paintChDlg()};
+$("#chSug").onclick=e=>{const b=e.target.closest(".chip");if(b)$("#chName").value=b.textContent};
+$("#chEmo").onclick=e=>{const b=e.target.closest(".emo");if(!b)return;chForm.emoji=b.textContent;paintChDlg()};
+$("#chDur").onclick=e=>{const b=e.target.closest(".opt");if(!b)return;const d=+b.dataset.d;chForm.custom=!d;if(d)chForm.days=d;paintChDlg();if(!d)$("#chCustom").focus()};
+$("#chForm").onsubmit=e=>{e.preventDefault();const name=$("#chName").value.trim();if(!name)return;
+  const days=chForm.custom?Math.min(1000,Math.max(1,Math.round(+$("#chCustom").value)||30)):chForm.days;
+  const start=$("#chStart").value||todayKey();
+  chs().push({id:uid(),name,type:chForm.type,emoji:chForm.emoji,days,start,log:{},cel:{},created:Date.now()});
+  save();$("#chDlg").close();toast(`🚀 بدأ تحدي "${name}" – ${durName(days)}`);celebrate();
+  if(!$("#v-challenges").hidden)renderChallenges();else renderStrip()};
+
 /* أرشيف */
 function renderArchive(){const q=$("#search").value.trim(),tk=todayKey();
   const keys=Object.keys(data.days).filter(k=>k!==tk&&(data.days[k].tasks.length||data.days[k].journal)).sort().reverse().filter(k=>!q||JSON.stringify(data.days[k]).includes(q)||Object.values(dates(k)).join(" ").includes(q));
@@ -658,7 +878,7 @@ function renderArchive(){const q=$("#search").value.trim(),tk=todayKey();
     :`<div class="card empty"><span class="big">📚</span>الأرشيف فاضي حاليًا<br>كل يوم ينتهي ينتقل هنا تلقائيًا</div>`}
 $("#search").oninput=renderArchive;
 $("#archList").onclick=e=>{const b=e.target.closest(".day");if(!b)return;viewKey=b.dataset.k;showTab("today");render(true);scrollTo({top:0,behavior:"smooth"})};
-function showTab(t){$$(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));$("#v-today").hidden=t!=="today";$("#v-archive").hidden=t!=="archive";if(t==="archive")renderArchive()}
+function showTab(t){$$(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));$("#v-today").hidden=t!=="today";$("#v-archive").hidden=t!=="archive";$("#v-challenges").hidden=t!=="challenges";if(t==="archive")renderArchive();if(t==="challenges"){checkMiles();renderChallenges()}}
 $$(".tab").forEach(b=>b.onclick=()=>{if(b.dataset.tab==="today")viewKey=null;showTab(b.dataset.tab);if(b.dataset.tab==="today")render(true)});
 
 /* إعدادات */
@@ -676,7 +896,8 @@ $("#exp").onclick=async()=>{const blob=new Blob([JSON.stringify(await sealed())]
 $("#imp").onclick=()=>$("#impFile").click();
 $("#impFile").onchange=async e=>{const f=e.target.files[0];if(!f)return;
   try{const v=JSON.parse(await f.text());if(!v.ct)throw 0;const pw=prompt("كلمة السر اللي كانت وقت التصدير:");if(!pw)return;
-    const imp=await openWith(v,await derive(pw,unb64(v.salt)));Object.entries(imp.days).forEach(([k,d])=>{if(!data.days[k]||!data.days[k].tasks.length)data.days[k]=d});save();render(true);toast("تم الاستيراد ✓");$("#settings").close()}
+    const imp=await openWith(v,await derive(pw,unb64(v.salt)));Object.entries(imp.days).forEach(([k,d])=>{if(!data.days[k]||!data.days[k].tasks.length)data.days[k]=d});
+    (imp.challenges||[]).forEach(c=>{if(!chs().some(x=>x.id===c.id))chs().push(c)});save();render(true);toast("تم الاستيراد ✓");$("#settings").close()}
   catch{alert("الملف غير صالح أو كلمة السر خطأ")}e.target.value=""};
 $("#wipe").onclick=async()=>{if(prompt('للحذف النهائي اكتب: حذف')!=="حذف")return;data={days:{}};
   if(CLOUD){try{await fb.F.deleteDoc(docRef())}catch{}}else store.del(localKey());$("#settings").close();showLock()};
